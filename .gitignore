@@ -1,4 +1,10 @@
 # Byte-compiled / optimized / DLL files
+
+mlruns/*
+mlflow.db
+model.pkl
+.DS_Store
+data/
 __pycache__/
 *.py[codz]
 *$py.class

@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/mohdnadeem/projects/telco-customer-churn/notebooks/mlruns/890051397426310540/339be05c81b04a6bb6cb9a3ff5313afd/artifacts
+end_time: 1779876170416
+entry_point_name: ''
+experiment_id: '890051397426310540'
+lifecycle_stage: active
+run_id: 339be05c81b04a6bb6cb9a3ff5313afd
+run_name: invincible-dove-405
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779876168272
+status: 3
+tags: []
+user_id: mohdnadeem
