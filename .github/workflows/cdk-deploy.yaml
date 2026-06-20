@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 permissions:
     contents: read
     id-token: write
@@ -72,17 +73,3 @@ jobs:
                 AWS_REGION: us-east-1
               working-directory: cdk-infra
               run: cdk deploy --all --require-approval never
-
-
-
-
-
-
-
-
-
-
-
-
-
-
