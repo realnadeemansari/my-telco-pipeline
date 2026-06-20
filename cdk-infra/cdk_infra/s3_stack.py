@@ -13,6 +13,8 @@ class S3BucketStack(Stack):
 
         test_bucket = s3.Bucket(
             self, "TestBucket",
+            bucket_name="test-bucket-1234567890",
             versioned=True,
             removal_policy=RemovalPolicy.DESTROY,
+            auto_delete_objects=True
         )

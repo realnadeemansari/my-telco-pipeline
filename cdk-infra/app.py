@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import aws_cdk as cdk
-from cdk_infra.cdk_infra_stack import S3BucketStack
+from cdk_infra.s3_stack import S3BucketStack
 
 
 app = cdk.App()
