@@ -5,6 +5,7 @@ from aws_cdk import (
     aws_s3 as s3,
 )
 from constructs import Construct
+from datetime import datetime
 
 class S3BucketStack(Stack):
 
@@ -13,7 +14,7 @@ class S3BucketStack(Stack):
 
         test_bucket = s3.Bucket(
             self, "TestBucket",
-            bucket_name="test-bucket-1234567890",
+            bucket_name="test-bucket-" + datetime.now().strftime("%Y%m%d%H%M%S"),
             versioned=True,
             removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True
