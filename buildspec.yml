@@ -26,11 +26,9 @@ phases:
       - export PYTHONBUFFERED=TRUE
       - export PIPELINE_NAME=$PIPELINE_NAME
       - |
-          python sagemaker_pipeline/src/pipeline/run_pipeline.py \
-          --pipeline_name=$PIPELINE_NAME \
-          --region=$REGION 
+          python src/pipeline/run_pipeline.py 
   post_build:
     commands:
       - echo Post-build phase...
       - echo Build completed on `date`
-      
+
