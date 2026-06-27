@@ -3,10 +3,6 @@ from aws_cdk import (
     aws_ssm as ssm,
 )
 from constructs import Construct
-from datetime import datetime
-
-def get_current_timestamp():
-    return datetime.now().strftime("%Y%m%d%H%M%S")
 
 class SSMStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
@@ -16,12 +12,12 @@ class SSMStack(Stack):
         self.workspace_bucket = ssm.StringParameter(
             self, "WorkspaceBucketNameParameter",
             parameter_name="/telco-churn/s3/workspace-bucket-name",
-            string_value="telco-customer-churn-workspace-" + get_current_timestamp()
+            string_value="wdda1-telco-customer-churn-workspace"
         )
         self.pipeline_bucket = ssm.StringParameter(
             self, "PipelineBucketNameParameter",
             parameter_name="/telco-churn/s3/pipeline-bucket-name",
-            string_value="telco-customer-churn-pipeline-" + get_current_timestamp()
+            string_value="wdda1-telco-customer-churn-pipeline"
         )
         self.bucket_prefix = ssm.StringParameter(
             self, "BucketPrefixParameter",
@@ -32,11 +28,6 @@ class SSMStack(Stack):
             self, "RegionParameter",
             parameter_name="/telco-churn/region",
             string_value="us-east-1"
-        )
-        self.project_prefix = ssm.StringParameter(
-            self, "ProjectPrefixParameter",
-            parameter_name="/telco-churn/project-prefix",
-            string_value="telco-churn"
         )
         self.pipeline_name = ssm.StringParameter(
             self, "PipelineNameParameter",
