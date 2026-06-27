@@ -24,11 +24,6 @@ class SSMStack(Stack):
             parameter_name="/telco-churn/s3/bucket-prefix",
             string_value="telco-pipeline"
         )
-        self.region = ssm.StringParameter(
-            self, "RegionParameter",
-            parameter_name="/telco-churn/region",
-            string_value="us-east-1"
-        )
         self.pipeline_name = ssm.StringParameter(
             self, "PipelineNameParameter",
             parameter_name="/telco-churn/pipeline-name",
