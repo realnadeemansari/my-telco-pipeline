@@ -6,7 +6,7 @@ model.pkl
 notebooks/docker_context/*
 notebooks/mlruns/*
 .DS_Store
-sagemaker_pipeline/data/
+sagemaker_pipeline/notebooks/mlruns/*
 __pycache__/
 *.py[codz]
 *$py.class
