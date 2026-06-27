@@ -1,0 +1,81 @@
+name: CDK Deploy
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+permissions:
+    contents: read
+    id-token: write
+jobs:
+    cdk-diff:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: 20
+            - name: Debug Role ARN
+              run: |
+                    echo "${{ secrets.AWS_ROLE_ARN }}"
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+                aws-region: us-east-1
+            - name: Verify Identity
+              run: |
+                    aws sts get-caller-identity
+            - name: Install AWS CDK
+              run: npm install -g aws-cdk
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: 3.11
+            
+            - name: Install Dependencies
+              working-directory: cdk-infra
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+            - name: CDK Diff
+              env:
+                AWS_REGION: us-east-1
+              working-directory: cdk-infra
+              run: cdk diff
+    deploy:
+        needs: cdk-diff
+        runs-on: ubuntu-latest
+        environment:
+            name: sandbox
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: 20
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+                aws-region: us-east-1
+            - name: Install AWS CDK
+              run: npm install -g aws-cdk
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: 3.11
+            
+            - name: Install Dependencies
+              working-directory: cdk-infra
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+            - name: CDK Deploy
+              env:
+                AWS_REGION: us-east-1
+              working-directory: cdk-infra
+              run: cdk deploy --all --require-approval never
