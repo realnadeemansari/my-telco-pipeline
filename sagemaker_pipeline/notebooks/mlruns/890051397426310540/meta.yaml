@@ -1,0 +1,8 @@
+artifact_location: file:///Users/mohdnadeem/projects/telco-customer-churn/notebooks/mlruns/890051397426310540
+creation_time: 1779870142459
+experiment_id: '890051397426310540'
+last_update_time: 1779870142459
+lifecycle_stage: active
+name: telco_churn
+trace_location: null
+workspace: default

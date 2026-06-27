@@ -1,0 +1,10 @@
+artifact_location: file:///Users/mohdnadeem/projects/telco-customer-churn/notebooks/mlruns/890051397426310540/models/m-aa8f442d12b54d1b9d1fcd59be052aa8/artifacts
+creation_timestamp: 1779876168559
+experiment_id: '890051397426310540'
+last_updated_timestamp: 1779876170415
+model_id: m-aa8f442d12b54d1b9d1fcd59be052aa8
+model_type: null
+name: model
+source_run_id: 339be05c81b04a6bb6cb9a3ff5313afd
+status: 2
+status_message: null

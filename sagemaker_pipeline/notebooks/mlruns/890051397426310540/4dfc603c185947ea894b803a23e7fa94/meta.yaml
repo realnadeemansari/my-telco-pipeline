@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/mohdnadeem/projects/telco-customer-churn/notebooks/mlruns/890051397426310540/4dfc603c185947ea894b803a23e7fa94/artifacts
+end_time: 1779870324812
+entry_point_name: ''
+experiment_id: '890051397426310540'
+lifecycle_stage: active
+run_id: 4dfc603c185947ea894b803a23e7fa94
+run_name: unique-gnu-943
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779870324517
+status: 4
+tags: []
+user_id: mohdnadeem
