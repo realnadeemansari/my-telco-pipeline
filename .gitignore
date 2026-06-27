@@ -3,10 +3,10 @@
 mlruns/*
 mlflow.db
 model.pkl
-notebooks/docker_context/*
+sagemaker_pipeline/notebooks/docker_context/*
 notebooks/mlruns/*
 .DS_Store
-data/
+sagemaker_pipeline/notebooks/mlruns/*
 __pycache__/
 *.py[codz]
 *$py.class
