@@ -4,11 +4,6 @@ from cdk_infra.s3_stack import S3BucketStack
 from cdk_infra.codepipeline_stack import CodePipelineStack
 from cdk_infra.ssm_stack import SSMStack
 from cdk_infra.codebuild_stack import CodeBuildStack
-import boto3
-
-ssm_client = boto3.client("ssm")
-
-
 
 app = cdk.App()
 
