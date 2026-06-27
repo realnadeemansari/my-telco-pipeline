@@ -9,22 +9,27 @@ app = cdk.App()
 
 ssm_stack = SSMStack(
     app, 
-    "SSMStack"
+    "SSMStack",
+    stack_name="sbx-tsp-telco-customer-churn-ssm"
 )
 s3_stack = S3BucketStack(
     app, 
     "S3BucketStack", 
+    stack_name="sbx-tsp-telco-customer-churn-s3",
     workspace_name=ssm_stack.workspace_bucket.string_value, 
     pipeline_name=ssm_stack.pipeline_bucket.string_value
 )
 
 codebuild_stack = CodeBuildStack(
     app, 
-    "CodeBuildStack"
+    "CodeBuildStack",
+    stack_name="sbx-tsp-telco-customer-churn-codebuild"
+
 )
 codepipeline_stack = CodePipelineStack(
     app,
     "CodePipelineStack",
+    stack_name="sbx-tsp-telco-customer-churn-codepipeline",
     build_project=codebuild_stack.build_project,
     artifact_bucket=s3_stack.pipeline_bucket,
     pipeline_name=ssm_stack.pipeline_name.string_value,

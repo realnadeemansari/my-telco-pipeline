@@ -12,12 +12,12 @@ class SSMStack(Stack):
         self.workspace_bucket = ssm.StringParameter(
             self, "WorkspaceBucketNameParameter",
             parameter_name="/telco-churn/s3/workspace-bucket-name",
-            string_value="wdda1-telco-customer-churn-workspace"
+            string_value="sbx-tsp-telco-customer-churn-workspace"
         )
         self.pipeline_bucket = ssm.StringParameter(
             self, "PipelineBucketNameParameter",
             parameter_name="/telco-churn/s3/pipeline-bucket-name",
-            string_value="wdda1-telco-customer-churn-pipeline"
+            string_value="sbx-tsp-telco-customer-churn-pipeline"
         )
         self.bucket_prefix = ssm.StringParameter(
             self, "BucketPrefixParameter",
