@@ -31,6 +31,7 @@ class CodePipelineStack(Stack):
             self,
             "TelcoChurnPipeline",
             pipeline_name=pipeline_name,
+            artifact_bucket=artifact_bucket,
         )
 
         ###################################################################
@@ -47,8 +48,7 @@ class CodePipelineStack(Stack):
 
         self.pipeline.add_stage(
             stage_name="Source",
-            actions=[source_action],
-            artifact_bucket=artifact_bucket
+            actions=[source_action]
         )
         
         ###################################################################

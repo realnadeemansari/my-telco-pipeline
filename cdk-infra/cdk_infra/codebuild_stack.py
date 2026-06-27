@@ -14,11 +14,9 @@ class CodeBuildStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         # Define the CodeBuild project
-        self.build_project = codebuild.Project(
+        self.build_project = codebuild.PipelineProject(
             self, "TelcoBuildProject",
-            source=codebuild.Source.code_pipeline(
-                build_spec=codebuild.BuildSpec.from_source_filename("buildspec.yml")
-            ),
+            build_spec=codebuild.BuildSpec.from_source_filename("buildspec.yml"),
             environment=codebuild.BuildEnvironment(
                 build_image=codebuild.LinuxBuildImage.STANDARD_7_0,
                 compute_type=codebuild.ComputeType.SMALL,
