@@ -1,2 +1,5 @@
 kagglehub==1.0.1
 imbalanced-learn==0.14.1
+sagemaker==2.245.0
+boto3==1.37.3
+stepfunctions==2.0.0

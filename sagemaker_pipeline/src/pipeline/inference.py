@@ -12,7 +12,6 @@ def model_fn(model_dir):
         "-m",
         "pip",
         "install",
-        "imbalanced-learn",
         "joblib"
     ])
     model_path = os.path.join(model_dir, "model.joblib")
