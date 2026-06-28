@@ -8,6 +8,7 @@ from stepfunctions import steps
 from stepfunctions.inputs import ExecutionInput
 from stepfunctions.workflow import Workflow
 from datetime import datetime
+import os
 
 s3_client = boto3.client("s3")
 ssm_client = boto3.client("ssm")
@@ -46,9 +47,9 @@ def create_preprocessing_step():
         instance_count=1,
         role=role,
     )
-
+    print(os.listdir())
     s3_client.upload_file(
-        Filename="preprocessing.py",
+        Filename="./preprocessing.py",
         Bucket=bucket,
         Key=f"{bucket_prefix}/code/preprocessing.py"
     )
