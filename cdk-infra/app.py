@@ -4,7 +4,6 @@ from cdk_infra.s3_stack import S3BucketStack
 from cdk_infra.codepipeline_stack import CodePipelineStack
 from cdk_infra.ssm_stack import SSMStack
 from cdk_infra.codebuild_stack import CodeBuildStack
-from cdk_infra.iam_stack import IAMStack
 
 app = cdk.App()
 project_prefix = "sbx-tsp-telco-churn"
@@ -16,23 +15,14 @@ ssm_stack = SSMStack(
     project_prefix=project_prefix
 )
 
-iam_stack = IAMStack(
-    app,
-    "IAMRoleStack",
-    stack_name=f"{project_prefix}-iam-roles",
-    build_project_name=ssm_stack.build_project_name.string_value,
-    build_iam_role_name=ssm_stack.build_iam_role_name.string_value,
-    s3_auto_delete_role_name=ssm_stack.s3_auto_delete_role_name.string_value,
-    pipeline_bucket=ssm_stack.pipeline_bucket.string_value,
-    workspace_bucket=ssm_stack.workspace_bucket.string_value,
-    project_prefix=ssm_stack.project_prefix.string_value,
-)
 s3_stack = S3BucketStack(
     app, 
     "S3BucketStack", 
     stack_name=f"{project_prefix}-s3",
     workspace_name=ssm_stack.workspace_bucket.string_value, 
-    pipeline_name=ssm_stack.pipeline_bucket.string_value
+    pipeline_name=ssm_stack.pipeline_bucket.string_value,
+    s3_auto_delete_role_name=ssm_stack.s3_auto_delete_role_name.string_value,
+    project_prefix=ssm_stack.project_prefix.string_value,
 )
 
 codebuild_stack = CodeBuildStack(
