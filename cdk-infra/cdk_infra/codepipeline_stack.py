@@ -114,6 +114,7 @@ class CodePipelineStack(Stack):
                     project=build_project,
                     input=source_output,
                     outputs=[build_output],
+                    role=self.pipeline_role
                 )
             ],
         )
@@ -130,4 +131,5 @@ class CodePipelineStack(Stack):
         self.pipeline.add_stage(
             stage_name="Approve",
             actions=[approve_action],
+            role=self.pipeline_role
             )
