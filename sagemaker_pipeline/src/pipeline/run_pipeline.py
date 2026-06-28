@@ -203,7 +203,7 @@ if __name__ == "__main__":
 
 
     workflow = Workflow(
-        name="TelcoChurnPipelineApproval",
+        name=f"{project_prefix}-workflow",
         definition=workflow_definition,
         role=role
     )
