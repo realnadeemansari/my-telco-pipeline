@@ -127,9 +127,9 @@ class CodePipelineStack(Stack):
             additional_information="Please review evaluation metrics before proceeding.",
             # external_entity_link="
             run_order=1,
+            role=self.pipeline_role
         )
         self.pipeline.add_stage(
             stage_name="Approve",
             actions=[approve_action],
-            role=self.pipeline_role
             )

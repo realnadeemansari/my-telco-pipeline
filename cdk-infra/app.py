@@ -21,8 +21,6 @@ s3_stack = S3BucketStack(
     stack_name=f"{project_prefix}-s3",
     workspace_name=ssm_stack.workspace_bucket.string_value, 
     pipeline_name=ssm_stack.pipeline_bucket.string_value,
-    s3_auto_delete_role_name=ssm_stack.s3_auto_delete_role_name.string_value,
-    project_prefix=ssm_stack.project_prefix.string_value,
 )
 
 codebuild_stack = CodeBuildStack(
@@ -41,7 +39,7 @@ codepipeline_stack = CodePipelineStack(
     pipeline_role_name=ssm_stack.pipeline_iam_role_name.string_value,
     build_project=codebuild_stack.build_project,
     project_prefix=ssm_stack.project_prefix.string_value,
-    artifact_bucket=ssm_stack.pipeline_bucket.string_value,
+    artifact_bucket=s3_stack.pipeline_bucket,
     pipeline_name=ssm_stack.pipeline_name.string_value,
     repo_owner=ssm_stack.github_owner.string_value,
     repo_name=ssm_stack.github_repo.string_value,
