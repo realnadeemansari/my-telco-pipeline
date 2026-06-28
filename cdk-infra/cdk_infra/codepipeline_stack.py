@@ -1,6 +1,8 @@
 from aws_cdk import (
     Stack,
+    Aws,
     aws_s3 as s3,
+    aws_iam as iam,
     aws_codepipeline as codepipeline,
     aws_codepipeline_actions as codepipeline_actions,
     aws_codebuild as codebuild,
@@ -16,6 +18,8 @@ class CodePipelineStack(Stack):
             *, 
             build_project: codebuild.IProject,
             artifact_bucket: s3.IBucket,
+            pipeline_role_name: str,
+            project_prefix,
             pipeline_name: str,
             repo_owner: str,
             repo_name: str,
@@ -24,12 +28,60 @@ class CodePipelineStack(Stack):
         ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        self.pipeline_role = iam.Role(
+            self,
+            "TelcoCodePipelineRole",
+            role_name=pipeline_role_name,
+            assumed_by=iam.ServicePrincipal("codepipeline.amazonaws.com"),
+            inline_policies={
+                f"{project_prefix}-codepipeline-s3-policy": iam.PolicyDocument(
+                    statements=[
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "s3:Abort*",
+                                "s3:DeleteObject*",
+                                "s3:GetBucket*",
+                                "s3:GetObject*",
+                                "s3:List*",
+                                "s3:PutObject",
+                                "s3:PutObjectLegalHold",
+                                "s3:PutObjectRetention",
+                                "s3:PutObjectTagging",
+                                "s3:PutObjectVersionTagging"
+                            ],
+                            resources=[
+                                f"arn:aws:s3:::{artifact_bucket.bucket_name}",
+                                f"arn:aws:s3:::{artifact_bucket.bucket_name}/*"
+                            ],
+                        )
+                    ]
+                ),
+                f"{project_prefix}-codepipeline-codebuild-policy": iam.PolicyDocument(
+                    statements=[
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "codebuild:BatchGetBuilds",
+                                "codebuild:StartBuild",
+                                "codebuild:StopBuild"
+                            ],
+                            resources=[
+                                f"arn:aws:codebuild:{Aws.REGION}:{Aws.ACCOUNT_ID}:project/{build_project.project_name}"
+                            ]
+                        )
+                    ]
+                ),
+            }
+        )
+
         source_output = codepipeline.Artifact("SourceArtifact")
         build_output = codepipeline.Artifact("BuildArtifact")
 
         self.pipeline = codepipeline.Pipeline(
             self,
             "TelcoChurnPipeline",
+            role=self.pipeline_role,
             pipeline_name=pipeline_name,
             artifact_bucket=artifact_bucket,
         )

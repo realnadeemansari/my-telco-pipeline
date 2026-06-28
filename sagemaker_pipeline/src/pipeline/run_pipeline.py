@@ -6,6 +6,7 @@ import sagemaker
 import boto3
 from stepfunctions import steps
 from stepfunctions.inputs import ExecutionInput
+from stepfunctions.workflow import Workflow
 from datetime import datetime
 
 s3_client = boto3.client("s3")
@@ -17,6 +18,8 @@ response = ssm_client.get_parameter(Name="/telco-churn/s3/workspace-bucket-name"
 bucket = response["Parameter"]["Value"]
 response = ssm_client.get_parameter(Name="/telco-churn/s3/bucket-prefix")
 bucket_prefix = response["Parameter"]["Value"]
+response = ssm_client.get_parameter(Name="/telco-churn/pipeline/project-prefix")
+project_prefix = response["Parameter"]["Value"]
 region = boto3.Session().region_name
 
 
@@ -31,8 +34,8 @@ execution_input = ExecutionInput(
 )
 
 workflow_inputs = {
-    "PreprocessingJobName": "telco-preprocessing-" + get_current_time(),
-    "TrainingJobName": "telco-training-" + get_current_time()
+    "PreprocessingJobName": f"{project_prefix}-preprocessing-" + get_current_time(),
+    "TrainingJobName": f"{project_prefix}-training-" + get_current_time()
 }
 
 
@@ -193,23 +196,23 @@ def create_training_step():
     )
     return training_step, register_model_step, save_model_arn
 
-processing_step = create_preprocessing_step()
-training_step, model_register_step, save_model_arn = create_training_step()
-workflow_definition = steps.Chain([processing_step, training_step, model_register_step, save_model_arn])
+if __name__ == "__main__":
+    processing_step = create_preprocessing_step()
+    training_step, model_register_step, save_model_arn = create_training_step()
+    workflow_definition = steps.Chain([processing_step, training_step, model_register_step, save_model_arn])
 
-from stepfunctions.workflow import Workflow
 
-workflow = Workflow(
-    name="TelcoChurnPipelineApproval",
-    definition=workflow_definition,
-    role=role
-)
+    workflow = Workflow(
+        name=f"{project_prefix}-workflow",
+        definition=workflow_definition,
+        role=role
+    )
 
-# workflow_arn = "arn:aws:states:us-east-1:395435558728:stateMachine:TelcoChurnPipelineApproval"
-workflow.create()
-# workflow.attach(state_machine_arn=workflow_arn)
-# workflow.update(
-#     definition=workflow_definition,
-#     role=role
-# )
-execution = workflow.execute(inputs=workflow_inputs)
+    # workflow_arn = "arn:aws:states:us-east-1:395435558728:stateMachine:TelcoChurnPipelineApproval"
+    workflow.create()
+    # workflow.attach(state_machine_arn=workflow_arn)
+    # workflow.update(
+    #     definition=workflow_definition,
+    #     role=role
+    # )
+    execution = workflow.execute(inputs=workflow_inputs)
