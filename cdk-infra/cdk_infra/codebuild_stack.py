@@ -130,6 +130,21 @@ class CodeBuildStack(Stack):
                             resources=["*"]   # List APIs don't support resource-level scoping in IAM
                         )
                     ]
+                ),
+                f"{project_prefix}-codebuild-ssm-policy": iam.PolicyDocument(
+                    statements=[
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "ssm:GetParameter",
+                                "ssm:GetParameters",      # for fetching multiple at once
+                                "ssm:GetParametersByPath" # for fetching all under a path prefix
+                            ],
+                            resources=[
+                                f"arn:aws:ssm:{Aws.REGION}:{Aws.ACCOUNT_ID}:parameter/telco-churn/*"
+                            ]
+                        )
+                    ]
                 )
             }
         )
@@ -144,4 +159,5 @@ class CodeBuildStack(Stack):
                 build_image=codebuild.LinuxBuildImage.STANDARD_7_0,
                 compute_type=codebuild.ComputeType.SMALL,
             ),
+            grant_report_group_permissions=False
         )
