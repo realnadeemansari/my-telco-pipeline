@@ -1,22 +1,24 @@
 from aws_cdk import (
     Stack,
-    Aws,
     aws_iam as iam,
-    aws_codebuild as codebuild,
+    CfnOutput,
+    Aws
 )
 from constructs import Construct
 
-class CodeBuildStack(Stack):
+class IAMStack(Stack):
     def __init__(
             self, 
             scope: Construct, 
-            construct_id: str,
+            construct_id: str, 
             build_project_name: str,
-            pipeline_bucket,
-            project_prefix,
             build_iam_role_name,
+            s3_auto_delete_role_name,
+            pipeline_bucket,
+            workspace_bucket,
+            project_prefix,
             **kwargs
-            ) -> None:
+        ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         self.codebuild_role = iam.Role(
@@ -133,15 +135,43 @@ class CodeBuildStack(Stack):
                 )
             }
         )
-
-        # Define the CodeBuild project
-        self.build_project = codebuild.PipelineProject(
-            self, "TelcoBuildProject",
-            role=self.codebuild_role,
-            project_name=build_project_name,
-            build_spec=codebuild.BuildSpec.from_source_filename("buildspec.yml"),
-            environment=codebuild.BuildEnvironment(
-                build_image=codebuild.LinuxBuildImage.STANDARD_7_0,
-                compute_type=codebuild.ComputeType.SMALL,
-            ),
+        self.s3_auto_delete_role = iam.Role(
+            self,
+            "S3AutoDeleteRole",
+            role_name=s3_auto_delete_role_name,
+            assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
+            inline_policies={
+                "sbx-tsp-telco-s3-auto-delete-logs-policy": iam.PolicyDocument(
+                    statements=[
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            resources=["arn:aws:logs:*:*:*"]
+                        )
+                    ]
+                ),
+                "sbx-tsp-telco-s3-auto-delete-s3-policy": iam.PolicyDocument(
+                    statements=[
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "s3:DeleteObject*",
+                                "s3:GetBucket*",
+                                "s3:List*",
+                                "s3:PutBucketPolicy"
+                            ],
+                            resources=[
+                                f"arn:aws:s3:::{pipeline_bucket}",
+                                f"arn:aws:s3:::{pipeline_bucket}/*",
+                                f"arn:aws:s3:::{workspace_bucket}",
+                                f"arn:aws:s3:::{workspace_bucket}/*"
+                            ]
+                        )
+                    ]
+                )
+            }
         )
