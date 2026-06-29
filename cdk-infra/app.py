@@ -61,7 +61,6 @@ stepfunction_stack = StepFunctionStack(
     "StepFunctionStack",
     sfn_state_machine_name=ssm_stack.sfn_state_machine_name.string_value,
     sfn_state_machine_role_name=ssm_stack.sfn_state_machine_role_name.string_value,
-    workspace_bucket=ssm_stack.workspace_bucket.string_value,
     project_prefix=ssm_stack.project_prefix.string_value,
     sagemaker_exec_role_arn=sagemaker_exec_role_stack.sagemaker_exec_role_arn.string_value
 )
