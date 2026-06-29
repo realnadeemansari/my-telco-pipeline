@@ -16,6 +16,7 @@ class CodeBuildStack(Stack):
             workspace_bucket,
             project_prefix,
             build_iam_role_name,
+            sfn_state_machine_role_name,
             **kwargs
             ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -108,6 +109,15 @@ class CodeBuildStack(Stack):
                             ],
                             resources=[
                                 f"arn:aws:states:{Aws.REGION}:{Aws.ACCOUNT_ID}:stateMachine:{project_prefix}-sfn-state-machine-workflow",
+                            ]
+                        ),
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "iam:PassRole"
+                            ],
+                            resources=[
+                                f"arn:aws:states:{Aws.REGION}:{Aws.ACCOUNT_ID}:role/{sfn_state_machine_role_name}",
                             ]
                         )
                     ]

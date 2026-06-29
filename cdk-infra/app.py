@@ -33,7 +33,8 @@ codebuild_stack = CodeBuildStack(
     workspace_bucket=ssm_stack.workspace_bucket.string_value,
     project_prefix=ssm_stack.project_prefix.string_value,
     build_project_name=ssm_stack.build_project_name.string_value,
-    build_iam_role_name=ssm_stack.build_iam_role_name.string_value
+    build_iam_role_name=ssm_stack.build_iam_role_name.string_value,
+    sfn_state_machine_role_name=ssm_stack.sfn_state_machine_role_name.string_value
 )
 codepipeline_stack = CodePipelineStack(
     app,
@@ -51,6 +52,7 @@ codepipeline_stack = CodePipelineStack(
 sagemaker_exec_role_stack = SageMakerRoleStack(
     app,
     "SageMakerExecRoleStack",
+    stack_name=f"{project_prefix}-sagemaker-exec-role",
     role_name=ssm_stack.sagemaker_exec_role_name.string_value,
     workspace_bucket=ssm_stack.workspace_bucket.string_value,
     project_prefix=ssm_stack.project_prefix.string_value
@@ -59,6 +61,7 @@ sagemaker_exec_role_stack = SageMakerRoleStack(
 stepfunction_stack = StepFunctionStack(
     app,
     "StepFunctionStack",
+    stack_name=f"{project_prefix}-stepfunction",
     sfn_state_machine_name=ssm_stack.sfn_state_machine_name.string_value,
     sfn_state_machine_role_name=ssm_stack.sfn_state_machine_role_name.string_value,
     project_prefix=ssm_stack.project_prefix.string_value,
