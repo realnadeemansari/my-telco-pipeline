@@ -65,5 +65,6 @@ stepfunction_stack = StepFunctionStack(
     project_prefix=ssm_stack.project_prefix.string_value,
     sagemaker_exec_role_arn=sagemaker_exec_role_stack.sagemaker_exec_role_arn.string_value
 )
+stepfunction_stack.add_dependency(sagemaker_exec_role_stack)
 
 app.synth()
