@@ -13,13 +13,14 @@ class CodeBuildStack(Stack):
             construct_id: str,
             build_project_name: str,
             pipeline_bucket,
+            workspace_bucket,
             project_prefix,
             build_iam_role_name,
             **kwargs
             ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        self.codebuild_role = iam.Role(
+        self.codebuild_role = iam.CfnRole(
             self, "TelcoCodeBuildRole",
             role_name=build_iam_role_name,
             assumed_by=iam.ServicePrincipal("codebuild.amazonaws.com"),
@@ -42,7 +43,9 @@ class CodeBuildStack(Stack):
                             ],
                             resources=[
                                 f"arn:aws:s3:::{pipeline_bucket}",
-                                f"arn:aws:s3:::{pipeline_bucket}/*"
+                                f"arn:aws:s3:::{pipeline_bucket}/*",
+                                f"arn:aws:s3:::{workspace_bucket}",
+                                f"arn:aws:s3:::{workspace_bucket}/*"
                             ],
                         )
                     ]
@@ -150,7 +153,7 @@ class CodeBuildStack(Stack):
         )
 
         # Define the CodeBuild project
-        self.build_project = codebuild.PipelineProject(
+        self.build_project = codebuild.CfnPipelineProject(
             self, "TelcoBuildProject",
             role=self.codebuild_role,
             project_name=build_project_name,
