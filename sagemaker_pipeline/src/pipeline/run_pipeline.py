@@ -205,6 +205,7 @@ if __name__ == "__main__":
 
 
     workflow = Workflow(
+        name=f"{project_prefix}-workflow",
         definition=workflow_definition,
         role=sfn_state_machine_role_arn
     )
