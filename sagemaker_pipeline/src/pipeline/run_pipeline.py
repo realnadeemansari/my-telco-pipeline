@@ -132,7 +132,7 @@ def create_training_step():
             "max_depth": 10,
             "min_samples_split": 2,
             "min_samples_leaf": 1,
-            "training_job_name": execution_input["TrainingJobName"],
+            "training_job_name": workflow_inputs["TrainingJobName"],
             "workspace_bucket": bucket,
             "bucket_prefix": bucket_prefix
         }
