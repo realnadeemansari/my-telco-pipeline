@@ -57,8 +57,8 @@ class CodePipelineStack(Stack):
                         ),
                         iam.PolicyStatement(
                             effect=iam.Effect.ALLOW,
-                            actions="sts:AssumeRole",
-                            resources=f"arn:aws:codebuild:{Aws.REGION}:{Aws.ACCOUNT_ID}:role/{pipeline_role_name}",
+                            actions=["sts:AssumeRole"],
+                            resources=[f"arn:aws:codebuild:{Aws.REGION}:{Aws.ACCOUNT_ID}:role/{pipeline_role_name}"],
                         )
                     ]
                 ),
