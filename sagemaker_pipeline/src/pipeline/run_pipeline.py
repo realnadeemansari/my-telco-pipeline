@@ -121,7 +121,7 @@ def get_sklearn_image_uri():
 
 def create_training_step():
     sklearn_estimator = SKLearn(
-        entry_point=os.path.join(working_dir, "pipeline/train.py"),
+        entry_point="train.py",
         source_dir=os.path.join(working_dir, "pipeline"),
         framework_version="1.2-1",
         instance_type="ml.m5.large",
