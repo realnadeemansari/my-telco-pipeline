@@ -81,59 +81,6 @@ class CodeBuildStack(Stack):
                         )
                     ]
                 ),
-                f"{project_prefix}-codebuild-sagemaker-policy": iam.PolicyDocument(
-                    statements=[
-                        iam.PolicyStatement(
-                            effect=iam.Effect.ALLOW,
-                            actions=[
-                                "sagemaker:CreateTrainingJob",
-                                "sagemaker:DescribeTrainingJob",
-                                "sagemaker:StopTrainingJob",
-                                "sagemaker:CreateProcessingJob",
-                                "sagemaker:DescribeProcessingJob",
-                                "sagemaker:StopProcessingJob",
-                                "sagemaker:CreateModel",
-                                "sagemaker:DeleteModel",
-                                "sagemaker:DescribeModel",
-                                "sagemaker:CreateModelPackage",
-                                "sagemaker:DescribeModelPackage",
-                                "sagemaker:UpdateModelPackage",
-                                "sagemaker:DeleteModelPackage",
-                                "sagemaker:CreateModelPackageGroup",
-                                "sagemaker:DescribeModelPackageGroup",
-                                "sagemaker:DeleteModelPackageGroup",
-                                "sagemaker:CreateEndpointConfig",
-                                "sagemaker:DeleteEndpointConfig",
-                                "sagemaker:CreateEndpoint",
-                                "sagemaker:UpdateEndpoint",
-                                "sagemaker:DeleteEndpoint",
-                                "sagemaker:DescribeEndpoint",
-                            ],
-                            resources=[
-                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:training-job/{project_prefix}*",
-                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:processing-job/{project_prefix}*",
-                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:model/{project_prefix}*",
-                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:model-package/{project_prefix}*",
-                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:model-package-group/{project_prefix}*",
-                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:endpoint-config/{project_prefix}*",
-                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:endpoint/{project_prefix}*"
-                            ]
-                        ),
-                        iam.PolicyStatement(
-                            effect=iam.Effect.ALLOW,
-                            actions=[
-                                "sagemaker:ListTrainingJobs",
-                                "sagemaker:ListProcessingJobs",
-                                "sagemaker:ListModels",
-                                "sagemaker:ListModelPackages",
-                                "sagemaker:ListModelPackageGroups",
-                                "sagemaker:ListEndpoints",
-                                "sagemaker:ListEndpointConfigs",
-                            ],
-                            resources=["*"]   # List APIs don't support resource-level scoping in IAM
-                        )
-                    ]
-                ),
                 f"{project_prefix}-codebuild-ssm-policy": iam.PolicyDocument(
                     statements=[
                         iam.PolicyStatement(
@@ -145,6 +92,22 @@ class CodeBuildStack(Stack):
                             ],
                             resources=[
                                 f"arn:aws:ssm:{Aws.REGION}:{Aws.ACCOUNT_ID}:parameter/telco-churn/*"
+                            ]
+                        )
+                    ]
+                ),
+                f"{project_prefix}-codebuild-stepfn-policy": iam.PolicyDocument(
+                    statements=[
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "states:DescribeStateMachine",
+                                "states:StartExecution",
+                                "states:DescribeExecution",
+                                "states:UpdateStateMachine"
+                            ],
+                            resources=[
+                                f"arn:aws:states:{Aws.REGION}:{Aws.ACCOUNT_ID}:stateMachine:{project_prefix}-sfn-state-machine-workflow",
                             ]
                         )
                     ]
