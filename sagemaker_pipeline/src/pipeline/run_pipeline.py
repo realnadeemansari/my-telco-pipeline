@@ -14,14 +14,14 @@ s3_client = boto3.client("s3")
 ssm_client = boto3.client("ssm")
 
 session = Session()
-role = sagemaker.get_execution_role()
-response = ssm_client.get_parameter(Name="/telco-churn/s3/workspace-bucket-name")
-bucket = response["Parameter"]["Value"]
-response = ssm_client.get_parameter(Name="/telco-churn/s3/bucket-prefix")
-bucket_prefix = response["Parameter"]["Value"]
-response = ssm_client.get_parameter(Name="/telco-churn/pipeline/project-prefix")
-project_prefix = response["Parameter"]["Value"]
 region = boto3.Session().region_name
+bucket = ssm_client.get_parameter(Name="/telco-churn/s3/workspace-bucket-name")["Parameter"]["Value"]
+bucket_prefix = ssm_client.get_parameter(Name="/telco-churn/s3/bucket-prefix")["Parameter"]["Value"]
+project_prefix = ssm_client.get_parameter(Name="/telco-churn/pipeline/project-prefix")["Parameter"]["Value"]
+sfn_state_machine_workflow_arn = ssm_client.get_parameter(Name="/telco-churn/step-function/state-machine/arn")["Parameter"]["Value"]
+sfn_state_machine_role_arn = ssm_client.get_parameter(Name="/telco-churn/step-function/state-machine/role-arn")["Parameter"]["Value"]
+sagemaker_exec_role_arn = ssm_client.get_parameter(Name="/telco-churn/sagemaker/execution-role-arn")["Parameter"]["Value"]
+working_dir = "./src"
 
 
 def get_current_time():
@@ -45,18 +45,18 @@ def create_preprocessing_step():
         framework_version="1.2-1",
         instance_type="ml.m5.xlarge",
         instance_count=1,
-        role=role,
+        role=sagemaker_exec_role_arn,
     )
     print(os.listdir())
     s3_client.upload_file(
-        Filename="./src/pipeline/preprocessing.py",
+        Filename=os.path.join(working_dir, "pipeline/preprocessing.py"),
         Bucket=bucket,
         Key=f"{bucket_prefix}/code/preprocessing.py"
     )
     script_s3_uri = f"s3://{bucket}/{bucket_prefix}/code/preprocessing.py"
 
     s3_client.upload_file(
-        Filename="./src/data/WA_Fn-UseC_-Telco-Customer-Churn.csv",
+        Filename=os.path.join(working_dir, "data/WA_Fn-UseC_-Telco-Customer-Churn.csv"),
         Bucket=bucket,
         Key=f"{bucket_prefix}/data/WA_Fn-UseC_-Telco-Customer-Churn.csv"
     )
@@ -121,11 +121,11 @@ def get_sklearn_image_uri():
 
 def create_training_step():
     sklearn_estimator = SKLearn(
-        entry_point="./src/pipeline/train.py",
-        source_dir=".",
+        entry_point=os.path.join(working_dir, "pipeline/train.py"),
+        source_dir=os.path.join(working_dir, "pipeline"),
         framework_version="1.2-1",
         instance_type="ml.m5.large",
-        role=role,
+        role=sagemaker_exec_role_arn,
         output_path=f"s3://{bucket}/{bucket_prefix}/model",
         hyperparameters={
             "n_estimators": 200,
@@ -191,7 +191,8 @@ def create_training_step():
         parameters={
             "Name": "/telco-churn/model-package-arn/latest",
             "Value.$": "$.RegisterModelResult.ModelPackageArn",
-            "Type": "String"
+            "Type": "String",
+            "Overwrite": True
         },
         result_path="$.SSMResult"
     )
@@ -204,16 +205,12 @@ if __name__ == "__main__":
 
 
     workflow = Workflow(
-        name=f"{project_prefix}-workflow",
         definition=workflow_definition,
-        role=role
+        role=sfn_state_machine_role_arn
     )
-
-    # workflow_arn = "arn:aws:states:us-east-1:395435558728:stateMachine:TelcoChurnPipelineApproval"
-    workflow.create()
-    # workflow.attach(state_machine_arn=workflow_arn)
-    # workflow.update(
-    #     definition=workflow_definition,
-    #     role=role
-    # )
+    workflow.attach(state_machine_arn=sfn_state_machine_workflow_arn)
+    workflow.update(
+        definition=workflow_definition,
+        role=sfn_state_machine_role_arn
+    )
     execution = workflow.execute(inputs=workflow_inputs)

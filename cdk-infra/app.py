@@ -4,6 +4,8 @@ from cdk_infra.s3_stack import S3BucketStack
 from cdk_infra.codepipeline_stack import CodePipelineStack
 from cdk_infra.ssm_stack import SSMStack
 from cdk_infra.codebuild_stack import CodeBuildStack
+from cdk_infra.stepfunction_stack import StepFunctionStack
+from cdk_infra.sagemaker_exec_role_stack import SageMakerRoleStack
 
 app = cdk.App()
 project_prefix = "sbx-tsp-telco-churn"
@@ -45,6 +47,23 @@ codepipeline_stack = CodePipelineStack(
     repo_owner=ssm_stack.github_owner.string_value,
     repo_name=ssm_stack.github_repo.string_value,
     branch_name=ssm_stack.github_branch.string_value
+)
+sagemaker_exec_role_stack = SageMakerRoleStack(
+    app,
+    "SageMakerExecRoleStack",
+    role_name=ssm_stack.sagemaker_exec_role_name.string_value,
+    workspace_bucket=ssm_stack.workspace_bucket.string_value,
+    project_prefix=ssm_stack.project_prefix.string_value
+)
+
+stepfunction_stack = StepFunctionStack(
+    app,
+    "StepFunctionStack",
+    sfn_state_machine_name=ssm_stack.sfn_state_machine_name.string_value,
+    sfn_state_machine_role_name=ssm_stack.sfn_state_machine_role_name.string_value,
+    workspace_bucket=ssm_stack.workspace_bucket.string_value,
+    project_prefix=ssm_stack.project_prefix.string_value,
+    sagemaker_exec_role_arn=sagemaker_exec_role_stack.sagemaker_exec_role_arn.string_value
 )
 
 app.synth()

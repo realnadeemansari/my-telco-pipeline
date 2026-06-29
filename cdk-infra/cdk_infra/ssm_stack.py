@@ -61,6 +61,21 @@ class SSMStack(Stack):
             parameter_name="/telco-churn/model-package/group-name",
             string_value=f"{project_prefix}-model-package"
         )
+        self.sfn_state_machine_name = ssm.StringParameter(
+            self, "SfnStateMachineNameParameter",
+            parameter_name="/telco-churn/step-function/state-machine/workflow-name",
+            string_value=f"{project_prefix}-sfn-state-machine-workflow"
+        )
+        self.sfn_state_machine_role_name = ssm.StringParameter(
+            self, "SfnStateMachineRoleNameParameter",
+            parameter_name="/telco-churn/step-function/state-machine/role-name",
+            string_value=f"{project_prefix}-sfn-state-machine-role"
+        )
+        self.sagemaker_exec_role_name = ssm.StringParameter(
+            self, "SagemakerExecRoleNameParameter",
+            parameter_name="/telco-churn/sagemaker/exec-role-name",
+            string_value=f"{project_prefix}-sagemaker-exec-role"
+        )
         self.github_owner = ssm.StringParameter(
             self, "GitHubOwnerParameter",
             parameter_name="/telco-churn/github/owner",
