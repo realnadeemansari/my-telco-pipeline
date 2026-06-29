@@ -56,7 +56,7 @@ def create_preprocessing_step():
     script_s3_uri = f"s3://{bucket}/{bucket_prefix}/code/preprocessing.py"
 
     s3_client.upload_file(
-        Filename="../data/WA_Fn-UseC_-Telco-Customer-Churn.csv",
+        Filename="./src/data/WA_Fn-UseC_-Telco-Customer-Churn.csv",
         Bucket=bucket,
         Key=f"{bucket_prefix}/data/WA_Fn-UseC_-Telco-Customer-Churn.csv"
     )
