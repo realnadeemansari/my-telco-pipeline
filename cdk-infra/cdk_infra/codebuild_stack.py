@@ -117,7 +117,7 @@ class CodeBuildStack(Stack):
                                 "iam:PassRole"
                             ],
                             resources=[
-                                f"arn:aws:states:{Aws.REGION}:{Aws.ACCOUNT_ID}:role/{sfn_state_machine_role_name}",
+                                f"arn:aws:iam::{Aws.ACCOUNT_ID}:role/{sfn_state_machine_role_name}",
                             ]
                         )
                     ]
