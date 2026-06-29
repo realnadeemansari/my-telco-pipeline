@@ -49,7 +49,7 @@ def create_preprocessing_step():
     )
     print(os.listdir())
     s3_client.upload_file(
-        Filename="./preprocessing.py",
+        Filename="./src/pipeline/preprocessing.py",
         Bucket=bucket,
         Key=f"{bucket_prefix}/code/preprocessing.py"
     )
@@ -121,7 +121,7 @@ def get_sklearn_image_uri():
 
 def create_training_step():
     sklearn_estimator = SKLearn(
-        entry_point="train.py",
+        entry_point="./src/pipeline/train.py",
         source_dir=".",
         framework_version="1.2-1",
         instance_type="ml.m5.large",
