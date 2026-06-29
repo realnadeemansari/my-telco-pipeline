@@ -28,6 +28,7 @@ codebuild_stack = CodeBuildStack(
     "CodeBuildStack",
     stack_name=f"{project_prefix}-codebuild",
     pipeline_bucket=ssm_stack.pipeline_bucket.string_value,
+    workspace_bucket=ssm_stack.workspace_bucket.string_value,
     project_prefix=ssm_stack.project_prefix.string_value,
     build_project_name=ssm_stack.build_project_name.string_value,
     build_iam_role_name=ssm_stack.build_iam_role_name.string_value
