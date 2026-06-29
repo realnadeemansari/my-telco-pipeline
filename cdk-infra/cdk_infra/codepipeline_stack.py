@@ -28,7 +28,7 @@ class CodePipelineStack(Stack):
         ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        self.pipeline_role = iam.CfnRole(
+        self.pipeline_role = iam.Role(
             self,
             "TelcoCodePipelineRole",
             role_name=pipeline_role_name,
@@ -83,7 +83,7 @@ class CodePipelineStack(Stack):
         source_output = codepipeline.Artifact("SourceArtifact")
         build_output = codepipeline.Artifact("BuildArtifact")
 
-        self.pipeline = codepipeline.CfnPipeline(
+        self.pipeline = codepipeline.Pipeline(
             self,
             "TelcoChurnPipeline",
             role=self.pipeline_role,
