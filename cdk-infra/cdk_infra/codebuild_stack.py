@@ -20,7 +20,7 @@ class CodeBuildStack(Stack):
             ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        self.codebuild_role = iam.CfnRole(
+        self.codebuild_role = iam.Role(
             self, "TelcoCodeBuildRole",
             role_name=build_iam_role_name,
             assumed_by=iam.ServicePrincipal("codebuild.amazonaws.com"),
@@ -153,7 +153,7 @@ class CodeBuildStack(Stack):
         )
 
         # Define the CodeBuild project
-        self.build_project = codebuild.CfnPipelineProject(
+        self.build_project = codebuild.PipelineProject(
             self, "TelcoBuildProject",
             role=self.codebuild_role,
             project_name=build_project_name,
