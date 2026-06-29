@@ -209,7 +209,7 @@ if __name__ == "__main__":
         definition=workflow_definition,
         role=sfn_state_machine_role_arn
     )
-    workflow.attach(state_machine_arn=sfn_state_machine_workflow_arn)
+    workflow = workflow.attach(state_machine_arn=sfn_state_machine_workflow_arn)
     workflow.update(
         definition=workflow_definition,
         role=sfn_state_machine_role_arn
