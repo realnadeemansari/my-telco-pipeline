@@ -58,7 +58,7 @@ class SSMStack(Stack):
         )
         self.model_package_group_name = ssm.StringParameter(
             self, "ModelPackageGroupNameParameter",
-            parameter_name="/telco-churn/model-package/group-name",
+            parameter_name="/telco-churn/sagemaker/model-package/group-name",
             string_value=f"{project_prefix}-model-package"
         )
         self.sfn_state_machine_name = ssm.StringParameter(

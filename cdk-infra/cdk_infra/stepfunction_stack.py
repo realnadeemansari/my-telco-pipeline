@@ -57,6 +57,8 @@ class StepFunctionStack(Stack):
                                 "sagemaker:UpdateEndpoint",
                                 "sagemaker:DeleteEndpoint",
                                 "sagemaker:DescribeEndpoint",
+                                "sagemaker:AddTags",
+                                "sagemaker:DeleteTags"
                             ],
                             resources=[
                                 f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:training-job/{project_prefix}*",
