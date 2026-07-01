@@ -22,8 +22,10 @@ import joblib
 import boto3
 import argparse
 
+region = os.environ["AWS_REGION"]
+
 s3 = boto3.client("s3")
-ssm_client = boto3.client("ssm")
+ssm_client = boto3.client("ssm", region_name=region)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--n-estimators", type=int, default=200)
