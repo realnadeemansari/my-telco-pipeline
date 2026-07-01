@@ -6,6 +6,7 @@ from cdk_infra.ssm_stack import SSMStack
 from cdk_infra.codebuild_stack import CodeBuildStack
 from cdk_infra.stepfunction_stack import StepFunctionStack
 from cdk_infra.sagemaker_exec_role_stack import SageMakerRoleStack
+from cdk_infra.model_package_group_stack import ModelPackageGroupStack
 
 app = cdk.App()
 project_prefix = "sbx-tsp-telco-churn"
@@ -68,5 +69,12 @@ stepfunction_stack = StepFunctionStack(
     sagemaker_exec_role_arn=sagemaker_exec_role_stack.sagemaker_exec_role_arn.string_value
 )
 stepfunction_stack.add_dependency(sagemaker_exec_role_stack)
+
+model_package_group_stack = ModelPackageGroupStack(
+    app,
+    "ModelPackageGroupStack",
+    stack_name=f"{project_prefix}-model-package-group",
+    model_package_group_name=ssm_stack.model_package_group_name.string_value
+)
 
 app.synth()

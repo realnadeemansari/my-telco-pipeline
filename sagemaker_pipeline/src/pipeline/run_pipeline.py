@@ -21,6 +21,7 @@ project_prefix = ssm_client.get_parameter(Name="/telco-churn/pipeline/project-pr
 sfn_state_machine_workflow_arn = ssm_client.get_parameter(Name="/telco-churn/step-function/state-machine/arn")["Parameter"]["Value"]
 sfn_state_machine_role_arn = ssm_client.get_parameter(Name="/telco-churn/step-function/state-machine/role-arn")["Parameter"]["Value"]
 sagemaker_exec_role_arn = ssm_client.get_parameter(Name="/telco-churn/sagemaker/execution-role-arn")["Parameter"]["Value"]
+model_package_group_name = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/group-name")["Parameter"]["Value"]
 working_dir = "./src"
 
 
@@ -162,7 +163,7 @@ def create_training_step():
         state_id="RegisterModelStep",
         resource="arn:aws:states:::aws-sdk:sagemaker:createModelPackage",
         parameters={
-            "ModelPackageGroupName": "telco-churn-model-package",
+            "ModelPackageGroupName": model_package_group_name,
             "ModelPackageDescription": "Model package for telco churn prediction",
             "ModelApprovalStatus": "PendingManualApproval",
             "InferenceSpecification": {
