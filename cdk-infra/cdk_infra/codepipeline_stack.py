@@ -18,6 +18,8 @@ class CodePipelineStack(Stack):
             *, 
             build_project: codebuild.IProject,
             artifact_bucket: s3.IBucket,
+            workspace_bucket: str,
+            bucket_prefix: str,
             pipeline_role_name: str,
             project_prefix,
             pipeline_name: str,
@@ -127,10 +129,13 @@ class CodePipelineStack(Stack):
         ###################################################################
         # Approve Stage
         ###################################################################
+        self.evaluation_key = "evaluation.json"
+        self.external_entity_link = f"https://s3.console.aws.amazon.com/s3/object/{workspace_bucket}?prefix={bucket_prefix}/output/evaluation/latest/{self.evaluation_key}"
+
         approve_action = codepipeline_actions.ManualApprovalAction(
             action_name="ManualApproval",
             additional_information="Please review evaluation metrics before proceeding.",
-            # external_entity_link="
+            external_entity_link=self.external_entity_link,
             run_order=1,
             role=self.pipeline_role
         )

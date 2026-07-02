@@ -52,7 +52,7 @@ class SageMakerRoleStack(Stack):
                                 "logs:CreateLogStream",
                                 "logs:PutLogEvents",
                             ],
-                            resources=["*"],
+                            resources=[f"arn:aws:logs:{Aws.REGION}:{Aws.ACCOUNT_ID}:log-group:/aws/sagemaker/*"],
                         )
                     ]
                 ),
@@ -63,9 +63,9 @@ class SageMakerRoleStack(Stack):
                                 "ecr:GetAuthorizationToken",
                                 "ecr:BatchCheckLayerAvailability",
                                 "ecr:GetDownloadUrlForLayer",
-                                "ecr:BatchGetImage",
+                                "ecr:BatchGetImage"
                             ],
-                            resources=["*"],
+                            resources=[f"arn:aws:ecr:{Aws.REGION}:{Aws.ACCOUNT_ID}:repository/{project_prefix}*"],
                         )
                     ]
                 )

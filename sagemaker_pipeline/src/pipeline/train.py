@@ -110,13 +110,12 @@ if __name__ == "__main__":
     s3.put_object(
         Body=json.dumps(evaluation_metrics),
         Bucket=args.workspace_bucket,
-        Key=f"{args.bucket_prefix}/{args.training_job_name}/output/evaluation/{evaluation_key}"
+        Key=f"{args.bucket_prefix}/output/evaluation/latest/{evaluation_key}"
     )
-    ssm_client.put_parameter(
-        Name="/telco-churn/pipeline/training/evaluation-metrics-uri",
-        Value=f"s3://{args.workspace_bucket}/{args.bucket_prefix}/{args.training_job_name}/output/evaluation/{evaluation_key}",
-        Type="String",
-        Overwrite=True
+    s3.put_object(
+        Bucket=args.workspace_bucket,
+        Key=f"{args.bucket_prefix}/{args.training_job_name}/output/evaluation/evaluation.json",
+        Body=json.dumps(evaluation_metrics)
     )
     model_dir = "/opt/ml/model"
 
