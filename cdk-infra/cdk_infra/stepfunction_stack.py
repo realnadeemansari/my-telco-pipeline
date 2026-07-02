@@ -16,6 +16,7 @@ class StepFunctionStack(Stack):
         sfn_state_machine_role_name: str,
         sfn_state_machine_name: str,
         sagemaker_exec_role_arn: str,
+        workspace_bucket: str,
         project_prefix,
         **kwargs
     ):
@@ -60,7 +61,7 @@ class StepFunctionStack(Stack):
                                 "sagemaker:AddTags",
                                 "sagemaker:DeleteTags"
                             ],
-                            resources=[
+                            resources=[ 
                                 f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:training-job/{project_prefix}*",
                                 f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:processing-job/{project_prefix}*",
                                 f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:model/{project_prefix}*",
@@ -119,6 +120,25 @@ class StepFunctionStack(Stack):
                             resources=[
                                 f"arn:aws:ssm:{Aws.REGION}:{Aws.ACCOUNT_ID}:parameter/telco-churn/*"
                             ]
+                        )
+                    ]
+                ),
+                f"{project_prefix}-sfn-s3-policy": iam.PolicyDocument(
+                    statements=[
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "s3:GetObject",
+                                "s3:PutObject",
+                                "s3:DeleteObject",
+                                "s3:ListBucket",
+                                "s3:GetBucketLocation",
+                                "s3:GetBucketAcl"
+                            ],
+                            resources=[
+                                f"arn:aws:s3:::{workspace_bucket}",
+                                f"arn:aws:s3:::{workspace_bucket}/*"
+                            ],
                         )
                     ]
                 ),
