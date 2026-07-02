@@ -35,7 +35,9 @@ class SageMakerRoleStack(Stack):
                                 "s3:GetObject",
                                 "s3:PutObject",
                                 "s3:DeleteObject",
-                                "s3:ListBucket"
+                                "s3:ListBucket",
+                                "s3:GetBucketLocation",
+                                "s3:GetBucketAcl"
                             ],
                             resources=[
                                 f"arn:aws:s3:::{workspace_bucket}",
@@ -60,12 +62,17 @@ class SageMakerRoleStack(Stack):
                     statements=[
                         iam.PolicyStatement(
                             actions=[
-                                "ecr:GetAuthorizationToken",
                                 "ecr:BatchCheckLayerAvailability",
                                 "ecr:GetDownloadUrlForLayer",
                                 "ecr:BatchGetImage"
                             ],
                             resources=[f"arn:aws:ecr:{Aws.REGION}:{Aws.ACCOUNT_ID}:repository/{project_prefix}*"],
+                        ),
+                        iam.PolicyStatement(
+                            actions=[
+                                "ecr:GetAuthorizationToken"
+                            ],
+                            resources=["*"],
                         )
                     ]
                 )
