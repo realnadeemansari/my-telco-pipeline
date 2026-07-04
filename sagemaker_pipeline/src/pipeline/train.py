@@ -10,7 +10,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
-# from sklearn.externals import joblib
+from sklearn.externals import joblib
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -18,7 +18,7 @@ from sklearn.metrics import (
     f1_score,
     roc_auc_score
 )
-import joblib
+# import joblib
 import boto3
 import argparse
 
