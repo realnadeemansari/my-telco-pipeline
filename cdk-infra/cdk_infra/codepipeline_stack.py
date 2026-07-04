@@ -121,7 +121,10 @@ class CodePipelineStack(Stack):
                     project=build_project,
                     input=source_output,
                     outputs=[build_output],
-                    role=self.pipeline_role
+                    role=self.pipeline_role,
+                    environment_variables={
+                        "PIPELINE_STAGE": codebuild.BuildEnvironemtVariable(value="TRAIN")
+                    }
                 )
             ],
         )
@@ -143,3 +146,24 @@ class CodePipelineStack(Stack):
             stage_name="Approve",
             actions=[approve_action],
             )
+        
+        ###################################################################
+        # Deploy Stage
+        ###################################################################
+
+        self.pipeline.add_stage(
+            stage_name="Deploy",
+            actions=[
+                codepipeline_actions.CodeBuildAction(
+                    action_name="DeployLatestApprovedModel",
+                    project=build_project,
+                    input=source_output,
+                    role=self.pipeline_role,
+                    environment_variables={
+                        "PIPELINE_STAGE": codebuild.BuildEnvironmentVariable(
+                            value="DEPLOY"
+                        )
+                    }
+                )
+            ]
+        )

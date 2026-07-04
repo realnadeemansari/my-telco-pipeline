@@ -61,6 +61,11 @@ class SSMStack(Stack):
             parameter_name="/telco-churn/sagemaker/model-package/group-name",
             string_value=f"{project_prefix}-model-package"
         )
+        self.endpoint_name = ssm.StringParameter(
+            self, "EndpointNameParameter",
+            parameter_name="/telco-churn/sagemaker/endpoint/name",
+            string_value=f"{project_prefix}"
+        )
         self.sfn_state_machine_name = ssm.StringParameter(
             self, "SfnStateMachineNameParameter",
             parameter_name="/telco-churn/step-function/state-machine/workflow-name",

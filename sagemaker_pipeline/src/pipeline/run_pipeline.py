@@ -186,7 +186,7 @@ def create_training_step():
         state_id="SaveModelARN",
         resource="arn:aws:states:::aws-sdk:ssm:putParameter",
         parameters={
-            "Name": "/telco-churn/model-package-arn/latest",
+            "Name": "/telco-churn/sagemaker/model-package-arn/latest",
             "Value.$": "$.RegisterModelResult.ModelPackageArn",
             "Type": "String",
             "Overwrite": True

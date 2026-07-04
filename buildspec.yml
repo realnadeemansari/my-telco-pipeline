@@ -26,7 +26,11 @@ phases:
       - export PYTHONBUFFERED=TRUE
       - export PIPELINE_NAME=$PIPELINE_NAME
       - |
-          python src/pipeline/run_pipeline.py 
+        if [ "$PIPELINE_STAGE" = "DEPLOY"]; then
+            python src/pipeline/deploy_model.py 
+        else
+            python src/pipeline/run_pipeline.py 
+        fi
   post_build:
     commands:
       - echo Post-build phase...
