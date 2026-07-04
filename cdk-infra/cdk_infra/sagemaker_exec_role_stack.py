@@ -87,6 +87,6 @@ class SageMakerRoleStack(Stack):
         self.sagemaker_exec_role_arn = ssm.StringParameter(
             self,
             "SageMakerExecRoleArn",
-            parameter_name="/telco-churn/sagemaker/execution-role-arn",
+            parameter_name="/telco-churn/sagemaker/exec-role-arn",
             string_value=self.sagemaker_role.role_arn,
         )
