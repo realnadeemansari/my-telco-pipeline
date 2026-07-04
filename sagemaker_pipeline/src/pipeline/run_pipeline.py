@@ -173,7 +173,7 @@ def create_training_step():
                         "ModelDataUrl.$": "$.ModelArtifacts.S3ModelArtifacts",
                         "Environment": {
                             "SAGEMAKER_PROGRAM": "inference.py",
-                            "SAGEMAKER_SUBMIT_DIRECTORY": "$.ModelArtifacts.S3ModelArtifacts"
+                            "SAGEMAKER_SUBMIT_DIRECTORY.$": "$.ModelArtifacts.S3ModelArtifacts"
                         }
                     }
                 ],
