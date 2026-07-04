@@ -17,6 +17,7 @@ class CodeBuildStack(Stack):
             project_prefix,
             build_iam_role_name,
             sfn_state_machine_role_name,
+            sagemaker_exec_role_name,
             **kwargs
             ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -149,6 +150,15 @@ class CodeBuildStack(Stack):
                                 f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:endpoint/{project_prefix}*"
                             ]
                         ),
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "iam:PassRole"
+                            ],
+                            resources=[
+                                f"arn:aws:iam::{Aws.ACCOUNT_ID}:role/{sagemaker_exec_role_name}",
+                            ]
+                        )
                     ]
                 )
             }
