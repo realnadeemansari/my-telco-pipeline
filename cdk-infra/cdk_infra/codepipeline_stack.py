@@ -123,7 +123,7 @@ class CodePipelineStack(Stack):
                     outputs=[build_output],
                     role=self.pipeline_role,
                     environment_variables={
-                        "PIPELINE_STAGE": codebuild.BuildEnvironemtVariable(value="TRAIN")
+                        "PIPELINE_STAGE": codebuild.BuildEnvironmentVariable(value="TRAIN")
                     }
                 )
             ],
