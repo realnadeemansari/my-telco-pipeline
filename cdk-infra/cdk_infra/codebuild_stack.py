@@ -121,6 +121,35 @@ class CodeBuildStack(Stack):
                             ]
                         )
                     ]
+                ),
+                f"{project_prefix}-codebuild-sagemaker-policy": iam.PolicyDocument(
+                    statements=[
+                        iam.PolicyStatement(
+                            effect=iam.Effect.ALLOW,
+                            actions=[
+                                "sagemaker:ListModelPackages",
+                                "sagemaker:DescribeModelPackage",
+                                "sagemaker:CreateModel",
+                                "sagemaker:DeleteModel",
+                                "sagemaker:DescribeModel",
+                                "sagemaker:CreateEndpointConfig",
+                                "sagemaker:DescribeEndpointConfig",
+                                "sagemaker:DeleteEndpointConfig",
+                                "sagemaker:CreateEndpoint",
+                                "sagemaker:UpdateEndpoint",
+                                "sagemaker:DescribeEndpoint"
+                                "sagemaker:AddTags",
+                                "sagemaker:DeleteTags"
+                            ],
+                            resources=[
+                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:model/{project_prefix}*",
+                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:model-package/{project_prefix}*",
+                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:model-package-group/{project_prefix}*",
+                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:endpoint-config/{project_prefix}*",
+                                f"arn:aws:sagemaker:{Aws.REGION}:{Aws.ACCOUNT_ID}:endpoint/{project_prefix}*"
+                            ]
+                        ),
+                    ]
                 )
             }
         )

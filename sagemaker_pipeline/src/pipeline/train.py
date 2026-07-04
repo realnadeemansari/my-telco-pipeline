@@ -114,7 +114,7 @@ if __name__ == "__main__":
     )
     s3.put_object(
         Bucket=args.workspace_bucket,
-        Key=f"{args.bucket_prefix}/{args.training_job_name}/output/evaluation/evaluation.json",
+        Key=f"{args.bucket_prefix}/output/evaluation/{args.training_job_name}/evaluation.json",
         Body=json.dumps(evaluation_metrics)
     )
     model_dir = "/opt/ml/model"
