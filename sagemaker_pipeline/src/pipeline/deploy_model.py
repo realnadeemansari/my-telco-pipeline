@@ -33,11 +33,7 @@ try:
     sm_client.create_model(
         ModelName=model_name,
         ExecutionRoleArn=ROLE_ARN,
-        Containers=[
-            {
-                "ModelPackageName": MODEL_PACKAGE_ARN
-            }
-        ]
+        ModelPackageName=MODEL_PACKAGE_ARN,
     )
 except sm_client.exceptions.ClientError as e:
     tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))

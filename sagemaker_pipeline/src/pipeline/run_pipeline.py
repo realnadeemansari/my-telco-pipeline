@@ -170,7 +170,11 @@ def create_training_step():
                 "Containers": [
                     {
                         "Image": image_uri,
-                        "ModelDataUrl.$": "$.ModelArtifacts.S3ModelArtifacts"
+                        "ModelDataUrl.$": "$.ModelArtifacts.S3ModelArtifacts",
+                        "Environment": {
+                            "SAGEMAKER_PROGRAM": "inference.py",
+                            "SAGEMAKER_SUBMIT_DIRECTORY": "$.ModelArtifacts.S3ModelArtifacts"
+                        }
                     }
                 ],
                 "SupportedContentTypes": ["application/json"],

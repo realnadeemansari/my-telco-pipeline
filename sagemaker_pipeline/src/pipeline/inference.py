@@ -1,10 +1,10 @@
 import os
 import json
-# import joblib
+import joblib
 import pandas as pd
 import subprocess
 import sys
-from sklearn.externals import joblib
+# from sklearn.externals import joblib
 
 
 def model_fn(model_dir):
