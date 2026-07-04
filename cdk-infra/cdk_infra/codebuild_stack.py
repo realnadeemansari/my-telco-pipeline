@@ -137,7 +137,7 @@ class CodeBuildStack(Stack):
                                 "sagemaker:DeleteEndpointConfig",
                                 "sagemaker:CreateEndpoint",
                                 "sagemaker:UpdateEndpoint",
-                                "sagemaker:DescribeEndpoint"
+                                "sagemaker:DescribeEndpoint",
                                 "sagemaker:AddTags",
                                 "sagemaker:DeleteTags"
                             ],
