@@ -20,7 +20,7 @@ bucket_prefix = ssm_client.get_parameter(Name="/telco-churn/s3/bucket-prefix")["
 project_prefix = ssm_client.get_parameter(Name="/telco-churn/pipeline/project-prefix")["Parameter"]["Value"]
 sfn_state_machine_workflow_arn = ssm_client.get_parameter(Name="/telco-churn/step-function/state-machine/arn")["Parameter"]["Value"]
 sfn_state_machine_role_arn = ssm_client.get_parameter(Name="/telco-churn/step-function/state-machine/role-arn")["Parameter"]["Value"]
-sagemaker_exec_role_arn = ssm_client.get_parameter(Name="/telco-churn/sagemaker/execution-role-arn")["Parameter"]["Value"]
+sagemaker_exec_role_arn = ssm_client.get_parameter(Name="/telco-churn/sagemaker/exec-role-arn")["Parameter"]["Value"]
 model_package_group_name = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/group-name")["Parameter"]["Value"]
 working_dir = "./src"
 
