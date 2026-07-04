@@ -35,7 +35,6 @@ try:
         ExecutionRoleArn=ROLE_ARN,
         Containers=[
             {
-                "Image": container["Image"],
                 "ModelPackageName": MODEL_PACKAGE_ARN
             }
         ]
