@@ -103,6 +103,7 @@ class CodePipelineStack(Stack):
             branch=branch_name,
             oauth_token=SecretValue.secrets_manager("github-token"),
             output=source_output,
+            trigger=codepipeline_actions.GitHubTrigger.NONE
         )
 
         self.pipeline.add_stage(
