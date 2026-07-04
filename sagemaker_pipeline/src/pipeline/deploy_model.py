@@ -1,4 +1,5 @@
 import boto3
+import traceback
 
 sm_client = boto3.client("sagemaker")
 ssm_client = boto3.client("ssm")
@@ -39,7 +40,9 @@ try:
             }
         ]
     )
-except sm_client.exceptions.ClientError:
+except sm_client.exceptions.ClientError as e:
+    tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+    print("Error: ", tb)
     print("Model already exists.")
 
 try:
@@ -54,7 +57,9 @@ try:
             }
         ]
     )
-except sm_client.exceptions.ClientError:
+except sm_client.exceptions.ClientError as e:
+    tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+    print("Error: ", tb)
     print("Endpoint config already exists.")
 
 try:
@@ -66,7 +71,9 @@ try:
         EndpointName=ENDPOINT_NAME,
         EndpointConfigName=endpoint_config
     )
-except sm_client.exceptions.ClientError:
+except sm_client.exceptions.ClientError as e:
+    tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+    print("Error: ", tb)
     print("Creating endpoint...")
     sm_client.create_endpoint(
         EndpointName=ENDPOINT_NAME,
@@ -75,4 +82,3 @@ except sm_client.exceptions.ClientError:
 
     print("Deployment started.")
 
-    
