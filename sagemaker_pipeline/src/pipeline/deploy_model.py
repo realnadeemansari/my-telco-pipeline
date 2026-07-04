@@ -1,5 +1,6 @@
 import boto3
 import traceback
+from datetime import datetime
 
 sm_client = boto3.client("sagemaker")
 ssm_client = boto3.client("ssm")
@@ -9,8 +10,9 @@ ENDPOINT_NAME = ssm_client.get_parameter(Name="/telco-churn/sagemaker/endpoint/n
 ROLE_ARN = ssm_client.get_parameter(Name="/telco-churn/sagemaker/exec-role-arn")["Parameter"]["Value"]
 MODEL_PACKAGE_ARN = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package-arn/latest")["Parameter"]["Value"]
 
-model_name = ENDPOINT_NAME + "-model"
-endpoint_config = ENDPOINT_NAME + "-config"
+model_version_suffix = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+model_name = f"{ENDPOINT_NAME}-model-{model_version_suffix}"
+endpoint_config = f"{ENDPOINT_NAME}-config-{model_version_suffix}"
 
 # packages = sm_client.list_model_packages(
 #     ModelPackageGroupName=MODEL_PACKAGE_GROUP_NAME,
