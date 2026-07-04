@@ -35,7 +35,8 @@ codebuild_stack = CodeBuildStack(
     project_prefix=ssm_stack.project_prefix.string_value,
     build_project_name=ssm_stack.build_project_name.string_value,
     build_iam_role_name=ssm_stack.build_iam_role_name.string_value,
-    sfn_state_machine_role_name=ssm_stack.sfn_state_machine_role_name.string_value
+    sfn_state_machine_role_name=ssm_stack.sfn_state_machine_role_name.string_value,
+    sagemaker_exec_role_name=ssm_stack.sagemaker_exec_role_name.string_value
 )
 codepipeline_stack = CodePipelineStack(
     app,
