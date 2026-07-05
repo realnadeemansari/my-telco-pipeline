@@ -7,6 +7,8 @@ from cdk_infra.codebuild_stack import CodeBuildStack
 from cdk_infra.stepfunction_stack import StepFunctionStack
 from cdk_infra.sagemaker_exec_role_stack import SageMakerRoleStack
 from cdk_infra.model_package_group_stack import ModelPackageGroupStack
+from cdk_infra.lambda_creation_stack import LambdaStack
+from cdk_infra.api_gateway_stack import ApiGatewayStack
 
 app = cdk.App()
 project_prefix = "sbx-tsp-telco-churn"
@@ -80,5 +82,24 @@ model_package_group_stack = ModelPackageGroupStack(
     stack_name=f"{project_prefix}-model-package-group",
     model_package_group_name=ssm_stack.model_package_group_name.string_value
 )
+
+lambda_stack = LambdaStack(
+    app,
+    "LambdaStack",
+    stack_name=f"{project_prefix}-lambda",
+    lambda_role_name=ssm_stack.lambda_role_name.string_value,
+    project_prefix=ssm_stack.project_prefix.string_value,
+    endpoint_name=ssm_stack.endpoint_name.string_value,
+)
+
+api_stack = ApiGatewayStack(
+    app,
+    "ApiGatewayStack",
+    stack_name=f"{project_prefix}-api-gateway",
+    project_prefix=ssm_stack.project_prefix.string_value,
+    predict_lambda=lambda_stack.predict_lambda,
+)
+
+api_stack.add_dependency(lambda_stack)
 
 app.synth()
