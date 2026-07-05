@@ -120,9 +120,9 @@ if __name__ == "__main__":
     model_dir = "/opt/ml/model"
 
     os.makedirs(model_dir, exist_ok=True)
-    os.makedirs(os.path.join(model_dir, "code"), exist_ok=True)
+    # os.makedirs(os.path.join(model_dir, "code"), exist_ok=True)
     joblib.dump(pipeline, os.path.join(model_dir, "model.joblib"))
     shutil.copy(
         "inference.py",
-        os.path.join(model_dir, "code", "inference.py")
+        os.path.join(model_dir, "inference.py")
     )
