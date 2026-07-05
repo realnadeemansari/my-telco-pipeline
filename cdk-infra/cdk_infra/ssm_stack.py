@@ -81,6 +81,11 @@ class SSMStack(Stack):
             parameter_name="/telco-churn/sagemaker/exec-role-name",
             string_value=f"{project_prefix}-sagemaker-exec-role"
         )
+        self.lambda_role_name = ssm.StringParameter(
+            self, "LambdaRoleNameParameter",
+            parameter_name="/telco-churn/lambda/role-name",
+            string_value=f"{project_prefix}-lambda-role"
+        )
         self.github_owner = ssm.StringParameter(
             self, "GitHubOwnerParameter",
             parameter_name="/telco-churn/github/owner",
