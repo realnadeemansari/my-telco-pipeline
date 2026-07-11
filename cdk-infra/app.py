@@ -9,6 +9,7 @@ from cdk_infra.sagemaker_exec_role_stack import SageMakerRoleStack
 from cdk_infra.model_package_group_stack import ModelPackageGroupStack
 from cdk_infra.lambda_creation_stack import LambdaStack
 from cdk_infra.api_gateway_stack import ApiGatewayStack
+from cdk_infra.network_stack import NetworkStack
 
 app = cdk.App()
 project_prefix = "sbx-tsp-telco-churn"
@@ -101,5 +102,12 @@ api_stack = ApiGatewayStack(
 )
 
 api_stack.add_dependency(lambda_stack)
+
+network_stack = NetworkStack(
+    app,
+    "NetworkStack",
+    stack_name=f"{project_prefix}-network",
+    project_prefix=ssm_stack.project_prefix.string_value,
+)
 
 app.synth()
