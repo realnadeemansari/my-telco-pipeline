@@ -30,6 +30,24 @@ class NetworkStack(Stack):
                 }
             ]
         )
+
+        self.internet_gateway = ec2.CfnInternetGateway(
+            self,
+            "InternetGateway",
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-igw"
+                }
+            ]
+        )
+
+        self.vpc_gateway_attachment = ec2.CfnVPCGatewayAttachment(
+            self,
+            "VpcGatewayAttachment",
+            vpc_id=self.vpc.ref,
+            internet_gateway_id=self.internet_gateway.ref
+        )
         ssm.StringParameter(
             self,
             "VpcIdParameter",
