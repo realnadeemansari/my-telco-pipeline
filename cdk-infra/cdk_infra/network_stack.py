@@ -158,7 +158,44 @@ class NetworkStack(Stack):
             subnet_id=self.private_subnet_2.ref,
             route_table_id=self.private_route_table.ref
         )
-
+        self.lambda_security_group = ec2.CfnSecurityGroup(
+            self,
+            "LambdaSecurityGroup",
+            group_name=f"{project_prefix}-lambda-sg",
+            group_description="Security group for Lambda functions",
+            vpc_id=self.vpc.ref,
+            security_group_egress=[
+                ec2.CfnSecurityGroup.EgressProperty(
+                    ip_protocol="-1",
+                    cidr_ip="0.0.0.0/0"
+                )
+            ],
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-lambda-sg"
+                }
+            ]
+        )
+        self.endpoint_security_group = ec2.CfnSecurityGroup(
+            self,
+            "EndpointSecurityGroup",
+            group_name=f"{project_prefix}-endpoint-sg",
+            group_description="Security group for SageMaker endpoint",
+            vpc_id=self.vpc.ref,
+            security_group_egress=[
+                ec2.CfnSecurityGroup.EgressProperty(
+                    ip_protocol="-1",
+                    cidr_ip="0.0.0.0/0"
+                )
+            ],
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-endpoint-sg"
+                }
+            ]
+        )
         CfnOutput(
             self,
             "VpcIdOutput",
@@ -188,6 +225,30 @@ class NetworkStack(Stack):
             "PrivateSubnet2IdOutput",
             value=self.private_subnet_2.ref,
             description="The ID of the second private subnet"
+        )
+        CfnOutput(
+            self,
+            "PublicRouteTableIdOutput",
+            value=self.public_route_table.ref,
+            description="The ID of the public route table"
+        )
+        CfnOutput(
+            self,
+            "PrivateRouteTableIdOutput",
+            value=self.private_route_table.ref,
+            description="The ID of the private route table"
+        )
+        CfnOutput(
+            self,
+            "LambdaSecurityGroupIdOutput",
+            value=self.lambda_security_group.ref,
+            description="The ID of the Lambda security group"
+        )
+        CfnOutput(
+            self,
+            "EndpointSecurityGroupIdOutput",
+            value=self.endpoint_security_group.ref,
+            description="The ID of the SageMaker endpoint security group"
         )
         ssm.StringParameter(
             self,
@@ -230,4 +291,16 @@ class NetworkStack(Stack):
             "PrivateRouteTableIdParameter",
             parameter_name="/telco-churn/network/private-route-table-id",
             string_value=self.private_route_table.ref
+        )
+        ssm.StringParameter(
+            self,
+            "LambdaSecurityGroupIdParameter",
+            parameter_name="/telco-churn/network/lambda-security-group-id",
+            string_value=self.lambda_security_group.ref
+        )
+        ssm.StringParameter(
+            self,
+            "EndpointSecurityGroupIdParameter",
+            parameter_name="/telco-churn/network/endpoint-security-group-id",
+            string_value=self.endpoint_security_group.ref
         )
