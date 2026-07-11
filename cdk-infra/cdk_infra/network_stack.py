@@ -104,6 +104,61 @@ class NetworkStack(Stack):
                 }
             ]
         )
+        self.public_route_table = ec2.CfnRouteTable(
+            self,
+            "PublicRouteTable",
+            vpc_id=self.vpc.ref,
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-public-rt"
+                }
+            ]
+        )
+        self.private_route_table = ec2.CfnRouteTable(
+            self,
+            "PrivateRouteTable",
+            vpc_id=self.vpc.ref,
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-private-rt"
+                }
+            ]
+        )
+        self.public_default_route = ec2.CfnRoute(
+            self,
+            "PublicDefaultRoute",
+            route_table_id=self.public_route_table.ref,
+            destination_cidr_block="0.0.0.0/0",
+            gateway_id=self.internet_gateway.ref
+        )
+        self.public_default_route.add_dependency(self.vpc_gateway_attachment)
+        ec2.CfnSubnetRouteTableAssociation(
+            self,
+            "PublicSubnet1RouteTableAssociation",
+            subnet_id=self.public_subnet_1.ref,
+            route_table_id=self.public_route_table.ref
+        )
+        ec2.CfnSubnetRouteTableAssociation(
+            self,
+            "PublicSubnet2RouteTableAssociation",
+            subnet_id=self.public_subnet_2.ref,
+            route_table_id=self.public_route_table.ref
+        )
+        ec2.CfnSubnetRouteTableAssociation(
+            self,
+            "PrivateSubnet1RouteTableAssociation",
+            subnet_id=self.private_subnet_1.ref,
+            route_table_id=self.private_route_table.ref
+        )
+        ec2.CfnSubnetRouteTableAssociation(
+            self,
+            "PrivateSubnet2RouteTableAssociation",
+            subnet_id=self.private_subnet_2.ref,
+            route_table_id=self.private_route_table.ref
+        )
+
         CfnOutput(
             self,
             "VpcIdOutput",
@@ -139,4 +194,40 @@ class NetworkStack(Stack):
             "VpcIdParameter",
             parameter_name="/telco-churn/network/vpc-id",
             string_value=self.vpc.ref
+        )
+        ssm.StringParameter(
+            self,
+            "PublicSubnet1IdParameter",
+            parameter_name="/telco-churn/network/public-subnet-1-id",
+            string_value=self.public_subnet_1.ref
+        )
+        ssm.StringParameter(
+            self,
+            "PublicSubnet2IdParameter",
+            parameter_name="/telco-churn/network/public-subnet-2-id",
+            string_value=self.public_subnet_2.ref
+        )
+        ssm.StringParameter(
+            self,
+            "PrivateSubnet1IdParameter",
+            parameter_name="/telco-churn/network/private-subnet-1-id",
+            string_value=self.private_subnet_1.ref
+        )
+        ssm.StringParameter(
+            self,
+            "PrivateSubnet2IdParameter",
+            parameter_name="/telco-churn/network/private-subnet-2-id",
+            string_value=self.private_subnet_2.ref
+        ) 
+        ssm.StringParameter(
+            self,
+            "PublicRouteTableIdParameter",
+            parameter_name="/telco-churn/network/public-route-table-id",
+            string_value=self.public_route_table.ref
+        )
+        ssm.StringParameter(
+            self,
+            "PrivateRouteTableIdParameter",
+            parameter_name="/telco-churn/network/private-route-table-id",
+            string_value=self.private_route_table.ref
         )
