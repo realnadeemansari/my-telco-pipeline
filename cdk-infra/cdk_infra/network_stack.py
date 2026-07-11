@@ -56,10 +56,10 @@ class NetworkStack(Stack):
             availability_zone="us-east-1a",
             map_public_ip_on_launch=True,
             tags=[
-                ec2.CfnTag(
-                    key="Name",
-                    value=f"{project_prefix}-public-subnet-1"
-                )
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-public-subnet-1"
+                }
             ]
         )
         self.public_subnet_2 = ec2.CfnSubnet(
@@ -70,10 +70,10 @@ class NetworkStack(Stack):
             availability_zone="us-east-1b",
             map_public_ip_on_launch=True,
             tags=[
-                ec2.CfnTag(
-                    key="Name",
-                    value=f"{project_prefix}-public-subnet-2"
-                )
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-public-subnet-2"
+                }
             ]
         )
         self.private_subnet_1 = ec2.CfnSubnet(
@@ -84,10 +84,10 @@ class NetworkStack(Stack):
             availability_zone="us-east-1a",
             map_public_ip_on_launch=False,
             tags=[
-                ec2.CfnTag(
-                    key="Name",
-                    value=f"{project_prefix}-private-subnet-1"
-                )
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-private-subnet-1"
+                }
             ]
         )
         self.private_subnet_2 = ec2.CfnSubnet(
@@ -98,10 +98,10 @@ class NetworkStack(Stack):
             availability_zone="us-east-1b",
             map_public_ip_on_launch=False,
             tags=[
-                ec2.CfnTag(
-                    key="Name",
-                    value=f"{project_prefix}-private-subnet-2"
-                )
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-private-subnet-2"
+                }
             ]
         )
         CfnOutput(
