@@ -1,5 +1,6 @@
 from aws_cdk import (
     Stack,
+    Aws,
     aws_ec2 as ec2,
     CfnOutput,
     aws_ssm as ssm,
@@ -17,6 +18,7 @@ class NetworkStack(Stack):
     ):
         super().__init__(scope, construct_id, **kwargs)
 
+        # Create VPC
         self.vpc = ec2.CfnVPC(
             self,
             "Vpc",
@@ -48,6 +50,8 @@ class NetworkStack(Stack):
             vpc_id=self.vpc.ref,
             internet_gateway_id=self.internet_gateway.ref
         )
+
+        # Create public and private subnets
         self.public_subnet_1 = ec2.CfnSubnet(
             self,
             "PublicSubnet1",
@@ -104,6 +108,8 @@ class NetworkStack(Stack):
                 }
             ]
         )
+
+        # Create route tables and routes
         self.public_route_table = ec2.CfnRouteTable(
             self,
             "PublicRouteTable",
@@ -134,6 +140,8 @@ class NetworkStack(Stack):
             gateway_id=self.internet_gateway.ref
         )
         self.public_default_route.add_dependency(self.vpc_gateway_attachment)
+
+        # Associate subnets with route tables
         ec2.CfnSubnetRouteTableAssociation(
             self,
             "PublicSubnet1RouteTableAssociation",
@@ -158,6 +166,8 @@ class NetworkStack(Stack):
             subnet_id=self.private_subnet_2.ref,
             route_table_id=self.private_route_table.ref
         )
+
+        # Security group for Lambda functions and SageMaker endpoint
         self.lambda_security_group = ec2.CfnSecurityGroup(
             self,
             "LambdaSecurityGroup",
@@ -205,6 +215,58 @@ class NetworkStack(Stack):
             from_port=443,
             to_port=443
         )
+
+        # Create VPC endpoints for S3, ECR, and CloudWatch Logs
+        self.s3_gateway_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "S3GatewayEndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.s3",
+            route_table_ids=[self.private_route_table.ref],
+            vpc_endpoint_type="Gateway"
+        )
+        self.ecr_api_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "ECRApiEndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.ecr.api",
+            vpc_endpoint_type="Interface",
+            subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
+            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            private_dns_enabled=True
+        )
+        self.ecr_dkr_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "ECRDKREndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.ecr.dkr",
+            vpc_endpoint_type="Interface",
+            subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
+            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            private_dns_enabled=True
+        )
+        self.logs_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "LogsEndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.logs",
+            vpc_endpoint_type="Interface",
+            subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
+            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            private_dns_enabled=True
+        )
+        self.sts_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "STSEndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.sts",
+            vpc_endpoint_type="Interface",
+            subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
+            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            private_dns_enabled=True
+        )
+
+        # Outputs for VPC, subnets, route tables, and security groups
         CfnOutput(
             self,
             "VpcIdOutput",
@@ -259,6 +321,26 @@ class NetworkStack(Stack):
             value=self.endpoint_security_group.ref,
             description="The ID of the SageMaker endpoint security group"
         )
+        CfnOutput(
+            self,
+            "ECRDKREndpointIdOutput",
+            value=self.ecr_dkr_endpoint.ref,
+            description="The ID of the ECR DKR VPC endpoint"
+        )
+        CfnOutput(
+            self,
+            "LogsEndpointIdOutput",
+            value=self.logs_endpoint.ref,
+            description="The ID of the CloudWatch Logs VPC endpoint"
+        )
+        CfnOutput(
+            self,
+            "STSEndpointIdOutput",
+            value=self.sts_endpoint.ref,
+            description="The ID of the STS VPC endpoint"
+        )
+
+        # Store VPC, subnets, route tables, and security groups in SSM Parameter Store
         ssm.StringParameter(
             self,
             "VpcIdParameter",
@@ -312,4 +394,16 @@ class NetworkStack(Stack):
             "EndpointSecurityGroupIdParameter",
             parameter_name="/telco-churn/network/endpoint-security-group-id",
             string_value=self.endpoint_security_group.ref
+        )
+        ssm.StringParameter(
+            self,
+            "LogsEndpointIdParameter",
+            parameter_name="/telco-churn/network/logs-endpoint-id",
+            string_value=self.logs_endpoint.ref
+        )
+        ssm.StringParameter(
+            self,
+            "STSEndpointIdParameter",
+            parameter_name="/telco-churn/network/sts-endpoint-id",
+            string_value=self.sts_endpoint.ref
         )
