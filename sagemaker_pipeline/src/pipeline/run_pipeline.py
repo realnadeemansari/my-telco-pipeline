@@ -22,11 +22,6 @@ sfn_state_machine_workflow_arn = ssm_client.get_parameter(Name="/telco-churn/ste
 sfn_state_machine_role_arn = ssm_client.get_parameter(Name="/telco-churn/step-function/state-machine/role-arn")["Parameter"]["Value"]
 sagemaker_exec_role_arn = ssm_client.get_parameter(Name="/telco-churn/sagemaker/exec-role-arn")["Parameter"]["Value"]
 model_package_group_name = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/group-name")["Parameter"]["Value"]
-
-# network configuration
-subnet_1_id = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-1-id")["Parameter"]["Value"]
-subnet_2_id = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-2-id")["Parameter"]["Value"]
-endpoint_security_group_id = ssm_client.get_parameter(Name="/telco-churn/network/endpoint-security-group-id")["Parameter"]["Value"]
 working_dir = "./src"
 
 
@@ -186,10 +181,6 @@ def create_training_step():
                 "SupportedResponseMIMETypes": ["application/json"],
                 "SupportedRealtimeInferenceInstanceTypes": ["ml.m5.large"],
                 "SupportedTransformInstanceTypes": ["ml.m5.large"]
-            },
-            "VpcConfig": {
-                "SecurityGroupIds": [endpoint_security_group_id],
-                "Subnets": [subnet_1_id, subnet_2_id]
             }
         },
         result_path="$.RegisterModelResult"

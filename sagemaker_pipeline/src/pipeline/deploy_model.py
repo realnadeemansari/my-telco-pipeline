@@ -10,6 +10,11 @@ ENDPOINT_NAME = ssm_client.get_parameter(Name="/telco-churn/sagemaker/endpoint/n
 ROLE_ARN = ssm_client.get_parameter(Name="/telco-churn/sagemaker/exec-role-arn")["Parameter"]["Value"]
 MODEL_PACKAGE_ARN = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package-arn/latest")["Parameter"]["Value"]
 
+# network configuration
+SUBNET_1_ID = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-1-id")["Parameter"]["Value"]
+SUBNET_2_ID = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-2-id")["Parameter"]["Value"]
+ENDPOINT_SECURITY_GROUP_ID = ssm_client.get_parameter(Name="/telco-churn/network/endpoint-security-group-id")["Parameter"]["Value"]
+
 model_version_suffix = datetime.utcnow().strftime("%Y%m%d%H%M%S")
 model_name = f"{ENDPOINT_NAME}-model-{model_version_suffix}"
 endpoint_config = f"{ENDPOINT_NAME}-config-{model_version_suffix}"
@@ -39,7 +44,11 @@ try:
             {
                 "ModelPackageName": MODEL_PACKAGE_ARN
             }
-        ]
+        ],
+        VpcConfig={
+            "SecurityGroupIds": [ENDPOINT_SECURITY_GROUP_ID],
+            "Subnets": [SUBNET_1_ID, SUBNET_2_ID]
+        }
     )
 except sm_client.exceptions.ClientError as e:
     tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))
