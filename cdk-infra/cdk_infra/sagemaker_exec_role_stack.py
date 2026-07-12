@@ -82,8 +82,11 @@ class SageMakerRoleStack(Stack):
                             effect=iam.Effect.ALLOW,
                             actions=[
                                 "ec2:CreateNetworkInterface",
-                                "ec2:DescribeNetworkInterfaces",
+                                "ec2:CreateNetworkInterfacePermission",
                                 "ec2:DeleteNetworkInterface",
+                                "ec2:DeleteNetworkInterfacePermission",
+                                "ec2:DescribeNetworkInterfaces",
+                                "ec2:ModifyNetworkInterfaceAttribute",
                                 "ec2:AssignPrivateIpAddresses",
                                 "ec2:UnassignPrivateIpAddresses",
                                 "ec2:DescribeSubnets",
@@ -91,7 +94,8 @@ class SageMakerRoleStack(Stack):
                                 "ec2:DescribeVpcs",
                                 "ec2:DescribeDhcpOptions",
                                 "ec2:DescribeVpcEndpoints",
-                                "ec2:DescribeAvailabilityZones"
+                                "ec2:DescribeAvailabilityZones",
+                                "ec2:DescribeRouteTables"
                             ],
                             resources=["*"]
                         )
