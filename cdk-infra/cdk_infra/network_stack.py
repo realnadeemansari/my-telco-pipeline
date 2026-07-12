@@ -265,7 +265,16 @@ class NetworkStack(Stack):
             security_group_ids=[self.endpoint_security_group.attr_group_id],
             private_dns_enabled=True
         )
-
+        self.sagemaker_runtime_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "SageMakerRuntimeEndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.sagemaker.runtime",
+            vpc_endpoint_type="Interface",
+            subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
+            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            private_dns_enabled=True
+        )
         # Outputs for VPC, subnets, route tables, and security groups
         CfnOutput(
             self,
@@ -338,6 +347,12 @@ class NetworkStack(Stack):
             "STSEndpointIdOutput",
             value=self.sts_endpoint.ref,
             description="The ID of the STS VPC endpoint"
+        )
+        CfnOutput(
+            self,
+            "SageMakerRuntimeEndpointIdOutput",
+            value=self.sagemaker_runtime_endpoint.ref,
+            description="The ID of the SageMaker Runtime VPC endpoint"
         )
 
         # Store VPC, subnets, route tables, and security groups in SSM Parameter Store
