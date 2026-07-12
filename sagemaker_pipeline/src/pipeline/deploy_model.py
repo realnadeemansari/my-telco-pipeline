@@ -81,6 +81,13 @@ try:
         EndpointName=ENDPOINT_NAME,
         EndpointConfigName=endpoint_config
     )
+    response = sm_client.describe_endpoint(
+        EndpointName=ENDPOINT_NAME
+    )
+    print(response["EndpointStatus"])
+    print(response["EndpointConfigName"])
+    print(response["LastModifiedTime"])
+    print(response["FailureReason"])
 except sm_client.exceptions.ClientError as e:
     tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))
     print("Error: ", tb)
