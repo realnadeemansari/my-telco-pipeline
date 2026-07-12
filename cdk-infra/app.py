@@ -110,4 +110,6 @@ network_stack = NetworkStack(
     project_prefix=ssm_stack.project_prefix.string_value,
 )
 
+lambda_stack.add_dependency(network_stack)
+
 app.synth()
