@@ -196,6 +196,15 @@ class NetworkStack(Stack):
                 }
             ]
         )
+        self.endpoint_security_group_ingress = ec2.CfnSecurityGroupIngress(
+            self,
+            "EndpointSecurityGroupIngress",
+            group_id=self.endpoint_security_group.attr_group_id,
+            source_security_group_id=self.lambda_security_group.attr_group_id,
+            ip_protocol="tcp",
+            from_port=443,
+            to_port=443
+        )
         CfnOutput(
             self,
             "VpcIdOutput",
