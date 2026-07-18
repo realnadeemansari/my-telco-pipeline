@@ -206,15 +206,6 @@ class NetworkStack(Stack):
                 }
             ]
         )
-        self.endpoint_security_group_ingress = ec2.CfnSecurityGroupIngress(
-            self,
-            "EndpointSecurityGroupIngress",
-            group_id=self.endpoint_security_group.attr_group_id,
-            source_security_group_id=self.lambda_security_group.attr_group_id,
-            ip_protocol="tcp",
-            from_port=443,
-            to_port=443
-        )
         self.process_train_security_group = ec2.CfnSecurityGroup(
             self,
             "ProcessTrainSecurityGroup",
@@ -234,14 +225,24 @@ class NetworkStack(Stack):
                 }
             ]
         )
-        self.process_train_security_group_ingress = ec2.CfnSecurityGroupIngress(
+        self.codebuild_security_group = ec2.CfnSecurityGroup(
             self,
-            "ProcessTrainSecurityGroupIngress",
-            group_id=self.process_train_security_group.attr_group_id,
-            source_security_group_id=self.process_train_security_group.attr_group_id,
-            ip_protocol="tcp",
-            from_port=443,
-            to_port=443
+            "CodeBuildSecurityGroup",
+            group_name=f"{project_prefix}-codebuild-sg",
+            group_description="Security group for CodeBuild",
+            vpc_id=self.vpc.ref,
+            security_group_egress=[
+                ec2.CfnSecurityGroup.EgressProperty(
+                    ip_protocol="-1",
+                    cidr_ip="0.0.0.0/0"
+                )
+            ],
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-codebuild-sg"
+                }
+            ]
         )
         self.vpc_endpoint_security_group = ec2.CfnSecurityGroup(
             self,
@@ -262,16 +263,52 @@ class NetworkStack(Stack):
                 }
             ]
         )
-        self.vpc_endpoint_security_group_ingress = ec2.CfnSecurityGroupIngress(
+        self.endpoint_security_group_lambda_ingress = ec2.CfnSecurityGroupIngress(
             self,
-            "VPCEndpointSecurityGroupLambdaIngress",
-            group_id=self.vpc_endpoint_security_group.attr_group_id,
+            "EndpointSecurityGroupLambdaIngress",
+            group_id=self.endpoint_security_group.attr_group_id,
             source_security_group_id=self.lambda_security_group.attr_group_id,
             ip_protocol="tcp",
             from_port=443,
             to_port=443
         )
-        self.vpc_endpoint_security_group_ingress = ec2.CfnSecurityGroupIngress(
+        self.endpoint_security_group_process_train_ingress = ec2.CfnSecurityGroupIngress(
+            self,
+            "EndpointSecurityGroupProcessTrainIngress",
+            group_id=self.endpoint_security_group.attr_group_id,
+            source_security_group_id=self.process_train_security_group.attr_group_id,
+            ip_protocol="tcp",
+            from_port=443,
+            to_port=443
+        )
+        self.process_train_security_group_ingress = ec2.CfnSecurityGroupIngress(
+            self,
+            "ProcessTrainSecurityGroupIngress",
+            group_id=self.process_train_security_group.attr_group_id,
+            source_security_group_id=self.process_train_security_group.attr_group_id,
+            ip_protocol="tcp",
+            from_port=443,
+            to_port=443
+        )
+        self.endpoint_security_group_codebuild_ingress = ec2.CfnSecurityGroupIngress(
+            self,
+            "EndpointSecurityGroupCodeBuildIngress",
+            group_id=self.endpoint_security_group.attr_group_id,
+            source_security_group_id=self.codebuild_security_group.attr_group_id,
+            ip_protocol="tcp",
+            from_port=443,
+            to_port=443
+        )
+        self.vpc_endpoint_security_group_endpoint_ingress = ec2.CfnSecurityGroupIngress(
+            self,
+            "VPCEndpointSecurityGroupEndpointIngress",
+            group_id=self.vpc_endpoint_security_group.attr_group_id,
+            source_security_group_id=self.endpoint_security_group.attr_group_id,
+            ip_protocol="tcp",
+            from_port=443,
+            to_port=443
+        )
+        self.vpc_endpoint_security_group_process_train_ingress = ec2.CfnSecurityGroupIngress(
             self,
             "VPCEndpointSecurityGroupProcessTrainIngress",
             group_id=self.vpc_endpoint_security_group.attr_group_id,
@@ -280,6 +317,117 @@ class NetworkStack(Stack):
             from_port=443,
             to_port=443
         )
+        self.vpc_endpoint_security_group_codebuild_ingress = ec2.CfnSecurityGroupIngress(
+            self,
+            "VPCEndpointSecurityGroupCodeBuildIngress",
+            group_id=self.vpc_endpoint_security_group.attr_group_id,
+            source_security_group_id=self.codebuild_security_group.attr_group_id,
+            ip_protocol="tcp",
+            from_port=443,
+            to_port=443
+        )
+
+        # Create NACL
+        # self.private_nacl = ec2.CfnNetworkAcl(
+        #     self,
+        #     "PrivateNetworkAcl",
+        #     vpc_id=self.vpc.ref,
+        #     tags=[
+        #         {
+        #             "key": "Name",
+        #             "value": f"{project_prefix}-private-nacl"
+        #         }
+        #     ]
+        # )
+        # ec2.CfnSubnetNetworkAclAssociation(
+        #     self,
+        #     "PrivateSubnet1NaclAssociation",
+        #     subnet_id=self.private_subnet_1.ref,
+        #     network_acl_id=self.private_nacl.ref
+        # )
+        # ec2.CfnSubnetNetworkAclAssociation(
+        #     self,
+        #     "PrivateSubnet2NaclAssociation",
+        #     subnet_id=self.private_subnet_2.ref,
+        #     network_acl_id=self.private_nacl.ref
+        # )
+
+        # ec2.CfnNetworkAclEntry(
+        #     self,
+        #     "PrivateInboundEphemeral",
+        #     network_acl_id=self.private_nacl.ref,
+        #     rule_number=100,
+        #     protocol=6,
+        #     rule_action="allow",
+        #     egress=False,
+        #     cidr_block="0.0.0.0/0",
+        #     port_range=ec2.CfnNetworkAclEntry.PortRangeProperty(
+        #         from_=1024,
+        #         to=65535
+        #     )
+        # )
+        # ec2.CfnNetworkAclEntry(
+        #     self,
+        #     "PrivateOutbound443",
+        #     network_acl_id=self.private_nacl.ref,
+        #     rule_number=100,
+        #     protocol=6,
+        #     rule_action="allow",
+        #     egress=True,
+        #     cidr_block="0.0.0.0/0",
+        #     port_range=ec2.CfnNetworkAclEntry.PortRangeProperty(
+        #         from_=443,
+        #         to=443
+        #     )
+        # )
+        # ec2.CfnNetworkAclEntry(
+        #     self,
+        #     "PrivateOutboundEphemeral",
+        #     network_acl_id=self.private_nacl.ref,
+        #     rule_number=110,
+        #     protocol=6,
+        #     rule_action="allow",
+        #     egress=True,
+        #     cidr_block="0.0.0.0/0",
+        #     port_range=ec2.CfnNetworkAclEntry.PortRangeProperty(
+        #         from_=1024,
+        #         to=65535
+        #     )
+        # )
+
+        # Create NAT
+        # self.nat_eip = ec2.CfnEIP(
+        #     self,
+        #     "NatElasticIP",
+        #     domain="vpc",
+        #     tags=[
+        #         {
+        #             "key": "Name",
+        #             "value": f"{project_prefix}-nat-eip"
+        #         }
+        #     ]
+        # )
+        # self.nat_gateway = ec2.CfnNatGateway(
+        #     self,
+        #     "NatGateway",
+        #     allocation_id=self.nat_eip.attr_allocation_id,
+        #     subnet_id=self.public_subnet_1.ref,
+        #     tags=[
+        #         {
+        #             "key": "Name",
+        #             "value": f"{project_prefix}-nat-gateway"
+        #         }
+        #     ]
+        # )
+        # self.nat_gateway.add_dependency(self.vpc_gateway_attachment)
+        # ec2.CfnRoute(
+        #     self,
+        #     "PrivateDefaultRoute",
+        #     route_table_id=self.private_route_table.ref,
+        #     destination_cidr_block="0.0.0.0/0",
+        #     nat_gateway_id=self.nat_gateway.ref
+        # )
+
         # Create VPC endpoints for S3, ECR, and CloudWatch Logs
         self.s3_gateway_endpoint = ec2.CfnVPCEndpoint(
             self,
@@ -334,6 +482,46 @@ class NetworkStack(Stack):
             "SageMakerRuntimeEndpoint",
             vpc_id=self.vpc.ref,
             service_name=f"com.amazonaws.{Aws.REGION}.sagemaker.runtime",
+            vpc_endpoint_type="Interface",
+            subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
+            security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
+            private_dns_enabled=True
+        )
+        self.ssm_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "SSMEndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.ssm",
+            vpc_endpoint_type="Interface",
+            subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
+            security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
+            private_dns_enabled=True
+        )
+        self.stepfunctions_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "StepFunctionsEndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.states",
+            vpc_endpoint_type="Interface",
+            subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
+            security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
+            private_dns_enabled=True
+        )
+        self.cloudformation_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "CloudFormationEndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.cloudformation",
+            vpc_endpoint_type="Interface",
+            subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
+            security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
+            private_dns_enabled=True
+        )
+        self.sagemaker_api_endpoint = ec2.CfnVPCEndpoint(
+            self,
+            "SageMakerApiEndpoint",
+            vpc_id=self.vpc.ref,
+            service_name=f"com.amazonaws.{Aws.REGION}.sagemaker.api",
             vpc_endpoint_type="Interface",
             subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
             security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
@@ -425,6 +613,60 @@ class NetworkStack(Stack):
             value=self.sagemaker_runtime_endpoint.ref,
             description="The ID of the SageMaker Runtime VPC endpoint"
         )
+        CfnOutput(
+            self,
+            "S3GatewayEndpointIdOutput",
+            value=self.s3_gateway_endpoint.ref,
+            description="The ID of the S3 Gateway VPC endpoint"
+        )
+        CfnOutput(
+            self,
+            "ProcessTrainSecurityGroupIdOutput",
+            value=self.process_train_security_group.ref,
+            description="The ID of the processing and training security group"
+        )
+        # CfnOutput(
+        #     self,
+        #     "PrivateNaclIdOutput",
+        #     value=self.private_nacl.ref,
+        #     description="The ID of the private network ACL"
+        # )
+        CfnOutput(
+            self,
+            "CodeBuildSecurityGroupIdOutput",
+            value=self.codebuild_security_group.ref,
+            description="The ID of the CodeBuild security group"
+        )
+        CfnOutput(
+            self,
+            "ECRApiInterfaceEndpointOutput",
+            value=self.ecr_api_endpoint.ref,
+            description="The ID of ECR Interface Endpoint"
+        )
+        CfnOutput(
+            self,
+            "SagemakerApiInterfaceEndpointOutput",
+            value=self.sagemaker_api_endpoint.ref,
+            description="The ID of Sagemaker Interface Endpoint"
+        )
+        CfnOutput(
+            self,
+            "SSMInterfaceEndpointOutput",
+            value=self.ssm_endpoint.ref,
+            description="The ID of SSM Interface Endpoint"
+        )
+        CfnOutput(
+            self,
+            "StepFunctionsInterfaceEndpointOutput",
+            value=self.stepfunctions_endpoint.ref,
+            description="The ID of Step Functions Interface Endpoint"
+        )
+        CfnOutput(
+            self,
+            "CloudFormationInterfaceEndpointOutput",
+            value=self.cloudformation_endpoint.ref,
+            description="The ID of Cloud formation Interface Endpoint"
+        )
 
         # Store VPC, subnets, route tables, and security groups in SSM Parameter Store
         ssm.StringParameter(
@@ -512,3 +754,46 @@ class NetworkStack(Stack):
             parameter_name="/telco-churn/network/sts-endpoint-id",
             string_value=self.sts_endpoint.ref
         )
+        # ssm.StringParameter(
+        #     self,
+        #     "PrivateNetworkAclParameter",
+        #     parameter_name="/telco-churn/network/private-network-acl-id",
+        #     string_value=self.private_nacl.ref
+        # )
+        ssm.StringParameter(
+            self,
+            "CodeBuildSecurityGroupIdParameter",
+            parameter_name="/telco-churn/network/codebuild-security-group-id",
+            string_value=self.codebuild_security_group.ref
+        )
+        ssm.StringParameter(
+            self,
+            "ECRApiEndpointParameter",
+            parameter_name="/telco-churn/network/ecr-api-endpoint",
+            string_value=self.ecr_api_endpoint.ref
+        )
+        ssm.StringParameter(
+            self,
+            "SagemakerApiEndpointParameter",
+            parameter_name="/telco-churn/network/sagemaker-api-endpoint",
+            string_value=self.sagemaker_api_endpoint.ref
+        )
+        ssm.StringParameter(
+            self,
+            "SSMEndpointParameter",
+            parameter_name="/telco-churn/network/ssm-endpoint",
+            string_value=self.ssm_endpoint.ref
+        )
+        ssm.StringParameter(
+            self,
+            "StepFunctionsEndpointParameter",
+            parameter_name="/telco-churn/network/stepfunctions-endpoint",
+            string_value=self.stepfunctions_endpoint.ref
+        )
+        ssm.StringParameter(
+            self,
+            "CloudFormationEndpointParameter",
+            parameter_name="/telco-churn/network/cloudformation-endpoint",
+            string_value=self.cloudformation_endpoint.ref
+        )
+        
