@@ -215,7 +215,71 @@ class NetworkStack(Stack):
             from_port=443,
             to_port=443
         )
-
+        self.process_train_security_group = ec2.CfnSecurityGroup(
+            self,
+            "ProcessTrainSecurityGroup",
+            group_name=f"{project_prefix}-process-train-sg",
+            group_description="Security group for processing and training",
+            vpc_id=self.vpc.ref,
+            security_group_egress=[
+                ec2.CfnSecurityGroup.EgressProperty(
+                    ip_protocol="-1",
+                    cidr_ip="0.0.0.0/0"
+                )
+            ],
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-process-train-sg"
+                }
+            ]
+        )
+        self.process_train_security_group_ingress = ec2.CfnSecurityGroupIngress(
+            self,
+            "ProcessTrainSecurityGroupIngress",
+            group_id=self.process_train_security_group.attr_group_id,
+            source_security_group_id=self.process_train_security_group.attr_group_id,
+            ip_protocol="tcp",
+            from_port=443,
+            to_port=443
+        )
+        self.vpc_endpoint_security_group = ec2.CfnSecurityGroup(
+            self,
+            "VPCEndpointSecurityGroup",
+            group_name=f"{project_prefix}-vpc-endpoint-sg",
+            group_description="Security group for VPC endpoints",
+            vpc_id=self.vpc.ref,
+            security_group_egress=[
+                ec2.CfnSecurityGroup.EgressProperty(
+                    ip_protocol="-1",
+                    cidr_ip="0.0.0.0/0"
+                )
+            ],
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-vpc-endpoint-sg"
+                }
+            ]
+        )
+        self.vpc_endpoint_security_group_ingress = ec2.CfnSecurityGroupIngress(
+            self,
+            "VPCEndpointSecurityGroupLambdaIngress",
+            group_id=self.vpc_endpoint_security_group.attr_group_id,
+            source_security_group_id=self.lambda_security_group.attr_group_id,
+            ip_protocol="tcp",
+            from_port=443,
+            to_port=443
+        )
+        self.vpc_endpoint_security_group_ingress = ec2.CfnSecurityGroupIngress(
+            self,
+            "VPCEndpointSecurityGroupProcessTrainIngress",
+            group_id=self.vpc_endpoint_security_group.attr_group_id,
+            source_security_group_id=self.process_train_security_group.attr_group_id,
+            ip_protocol="tcp",
+            from_port=443,
+            to_port=443
+        )
         # Create VPC endpoints for S3, ECR, and CloudWatch Logs
         self.s3_gateway_endpoint = ec2.CfnVPCEndpoint(
             self,
@@ -232,7 +296,7 @@ class NetworkStack(Stack):
             service_name=f"com.amazonaws.{Aws.REGION}.ecr.api",
             vpc_endpoint_type="Interface",
             subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
-            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
             private_dns_enabled=True
         )
         self.ecr_dkr_endpoint = ec2.CfnVPCEndpoint(
@@ -242,7 +306,7 @@ class NetworkStack(Stack):
             service_name=f"com.amazonaws.{Aws.REGION}.ecr.dkr",
             vpc_endpoint_type="Interface",
             subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
-            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
             private_dns_enabled=True
         )
         self.logs_endpoint = ec2.CfnVPCEndpoint(
@@ -252,7 +316,7 @@ class NetworkStack(Stack):
             service_name=f"com.amazonaws.{Aws.REGION}.logs",
             vpc_endpoint_type="Interface",
             subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
-            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
             private_dns_enabled=True
         )
         self.sts_endpoint = ec2.CfnVPCEndpoint(
@@ -262,7 +326,7 @@ class NetworkStack(Stack):
             service_name=f"com.amazonaws.{Aws.REGION}.sts",
             vpc_endpoint_type="Interface",
             subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
-            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
             private_dns_enabled=True
         )
         self.sagemaker_runtime_endpoint = ec2.CfnVPCEndpoint(
@@ -272,7 +336,7 @@ class NetworkStack(Stack):
             service_name=f"com.amazonaws.{Aws.REGION}.sagemaker.runtime",
             vpc_endpoint_type="Interface",
             subnet_ids=[self.private_subnet_1.ref, self.private_subnet_2.ref],
-            security_group_ids=[self.endpoint_security_group.attr_group_id],
+            security_group_ids=[self.vpc_endpoint_security_group.attr_group_id],
             private_dns_enabled=True
         )
         # Outputs for VPC, subnets, route tables, and security groups
@@ -329,6 +393,13 @@ class NetworkStack(Stack):
             "EndpointSecurityGroupIdOutput",
             value=self.endpoint_security_group.ref,
             description="The ID of the SageMaker endpoint security group"
+        )
+
+        CfnOutput(
+            self,
+            "VPCEndpointSecurityGroupIdOutput",
+            value=self.vpc_endpoint_security_group.ref,
+            description="The ID of the VPC endpoint security group"
         )
         CfnOutput(
             self,
@@ -409,6 +480,25 @@ class NetworkStack(Stack):
             "EndpointSecurityGroupIdParameter",
             parameter_name="/telco-churn/network/endpoint-security-group-id",
             string_value=self.endpoint_security_group.ref
+        )
+
+        ssm.StringParameter(
+            self,
+            "ProcessTrainSecurityGroupIdParameter",
+            parameter_name="/telco-churn/network/process-train-security-group-id",
+            string_value=self.process_train_security_group.ref
+        )
+        ssm.StringParameter(
+            self,
+            "VPCEndpointSecurityGroupIdParameter",
+            parameter_name="/telco-churn/network/vpc-endpoint-security-group-id",
+            string_value=self.vpc_endpoint_security_group.ref
+        )
+        ssm.StringParameter(
+            self,
+            "S3EndpointIdParameter",
+            parameter_name="/telco-churn/network/s3-gateway-endpoint-id",
+            string_value=self.s3_gateway_endpoint.ref
         )
         ssm.StringParameter(
             self,

@@ -3,9 +3,11 @@ from aws_cdk import (
     RemovalPolicy,
     Stack,
     aws_s3 as s3,
-    aws_iam as iam
+    aws_iam as iam,
+    aws_ssm as ssm
 )
 from constructs import Construct
+
 
 class S3BucketStack(Stack):
 
@@ -19,6 +21,10 @@ class S3BucketStack(Stack):
         ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        self.s3_vpc_endpoint_id = ssm.StringParameter.value_for_string_parameter(
+            self,
+            "/telco-churn/network/s3-gateway-endpoint-id"
+        )
 
         self.workspace_bucket = s3.Bucket(
             self, "WorkspaceBucket",
@@ -34,5 +40,23 @@ class S3BucketStack(Stack):
             versioned=True,
             removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True
+        )
+
+        self.workspace_bucket.add_to_resource_policy(
+            iam.PolicyStatement(
+                sid="AllowOnlyThroughVpcEndpoint",
+                effect=iam.Effect.DENY,
+                actions=["s3:*"],
+                resources=[
+                    f"{self.workspace_bucket.bucket_arn}",
+                    f"{self.workspace_bucket.bucket_arn}/*"
+                ],
+                principals=[iam.AnyPrincipal()],
+                conditions={
+                    "StringNotEquals": {
+                        "aws:sourceVpce": self.s3_vpc_endpoint_id
+                    }
+                }
+            )
         )
 
