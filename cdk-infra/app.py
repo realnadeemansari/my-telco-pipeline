@@ -111,5 +111,6 @@ network_stack = NetworkStack(
 )
 
 lambda_stack.add_dependency(network_stack)
+network_stack.add_dependency(network_stack)
 
 app.synth()
