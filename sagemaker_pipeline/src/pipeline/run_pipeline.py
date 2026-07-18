@@ -1,5 +1,6 @@
 from sagemaker.sklearn.processing import SKLearnProcessor
 from sagemaker.sklearn.estimator import SKLearn
+from sagemaker.network import NetworkConfig
 from sagemaker.processing import ProcessingInput, ProcessingOutput
 from sagemaker import Session
 import sagemaker
@@ -27,6 +28,11 @@ subnet_2 = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-2-
 process_train_sg = ssm_client.get_parameter(Name="/telco-churn/network/process-train-security-group-id")["Parameter"]["Value"]
 working_dir = "./src"
 
+network_config = NetworkConfig(
+    subnets=[subnet_1, subnet_2],
+    security_group_ids=[process_train_sg]
+)
+
 
 def get_current_time():
     return datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
@@ -50,8 +56,7 @@ def create_preprocessing_step():
         instance_type="ml.m5.xlarge",
         instance_count=1,
         role=sagemaker_exec_role_arn,
-        subnets=[subnet_1, subnet_2],
-        security_group_ids=[process_train_sg],
+        network_config=network_config,
     )
     print(os.listdir())
     s3_client.upload_file(
@@ -133,8 +138,7 @@ def create_training_step():
         instance_type="ml.m5.large",
         role=sagemaker_exec_role_arn,
         output_path=f"s3://{bucket}/{bucket_prefix}/model",
-        subnets=[subnet_1, subnet_2],
-        security_group_ids=[process_train_sg],
+        network_config=network_config,
         hyperparameters={
             "n_estimators": 200,
             "max_depth": 10,
