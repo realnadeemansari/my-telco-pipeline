@@ -22,6 +22,9 @@ sfn_state_machine_workflow_arn = ssm_client.get_parameter(Name="/telco-churn/ste
 sfn_state_machine_role_arn = ssm_client.get_parameter(Name="/telco-churn/step-function/state-machine/role-arn")["Parameter"]["Value"]
 sagemaker_exec_role_arn = ssm_client.get_parameter(Name="/telco-churn/sagemaker/exec-role-arn")["Parameter"]["Value"]
 model_package_group_name = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/group-name")["Parameter"]["Value"]
+subnet_1 = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/private-subnet-1-id")["Parameter"]["Value"]
+subnet_2 = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/private-subnet-2-id")["Parameter"]["Value"]
+process_train_sg = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/process-train-security-group-id")["Parameter"]["Value"]
 working_dir = "./src"
 
 
@@ -47,6 +50,8 @@ def create_preprocessing_step():
         instance_type="ml.m5.xlarge",
         instance_count=1,
         role=sagemaker_exec_role_arn,
+        subnets=[subnet_1, subnet_2],
+        security_group_ids=[process_train_sg],
     )
     print(os.listdir())
     s3_client.upload_file(
@@ -128,6 +133,8 @@ def create_training_step():
         instance_type="ml.m5.large",
         role=sagemaker_exec_role_arn,
         output_path=f"s3://{bucket}/{bucket_prefix}/model",
+        subnets=[subnet_1, subnet_2],
+        security_group_ids=[process_train_sg],
         hyperparameters={
             "n_estimators": 200,
             "max_depth": 10,
