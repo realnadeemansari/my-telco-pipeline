@@ -22,9 +22,9 @@ sfn_state_machine_workflow_arn = ssm_client.get_parameter(Name="/telco-churn/ste
 sfn_state_machine_role_arn = ssm_client.get_parameter(Name="/telco-churn/step-function/state-machine/role-arn")["Parameter"]["Value"]
 sagemaker_exec_role_arn = ssm_client.get_parameter(Name="/telco-churn/sagemaker/exec-role-arn")["Parameter"]["Value"]
 model_package_group_name = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/group-name")["Parameter"]["Value"]
-subnet_1 = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/private-subnet-1-id")["Parameter"]["Value"]
-subnet_2 = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/private-subnet-2-id")["Parameter"]["Value"]
-process_train_sg = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package/process-train-security-group-id")["Parameter"]["Value"]
+subnet_1 = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-1-id")["Parameter"]["Value"]
+subnet_2 = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-2-id")["Parameter"]["Value"]
+process_train_sg = ssm_client.get_parameter(Name="/telco-churn/network/process-train-security-group-id")["Parameter"]["Value"]
 working_dir = "./src"
 
 
