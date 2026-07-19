@@ -47,24 +47,24 @@ class S3BucketStack(Stack):
             auto_delete_objects=True
         )
 
-        self.workspace_bucket.add_to_resource_policy(
-            iam.PolicyStatement(
-                sid="AllowOnlyThroughVpcEndpoint",
-                effect=iam.Effect.DENY,
-                actions=["s3:*"],
-                resources=[
-                    f"{self.workspace_bucket.bucket_arn}",
-                    f"{self.workspace_bucket.bucket_arn}/*"
-                ],
-                principals=[iam.AnyPrincipal()],
-                conditions={
-                    "StringNotEquals": {
-                        "aws:sourceVpce": self.s3_vpc_endpoint_id
-                    },
-                    "ArnNotEquals": {
-                       "aws:PrincipalArn": self.sagemaker_execution_role_arn
-                    }
-                }
-            )
-        )
+        # self.workspace_bucket.add_to_resource_policy(
+        #     iam.PolicyStatement(
+        #         sid="AllowOnlyThroughVpcEndpoint",
+        #         effect=iam.Effect.DENY,
+        #         actions=["s3:*"],
+        #         resources=[
+        #             f"{self.workspace_bucket.bucket_arn}",
+        #             f"{self.workspace_bucket.bucket_arn}/*"
+        #         ],
+        #         principals=[iam.AnyPrincipal()],
+        #         conditions={
+        #             "StringNotEquals": {
+        #                 "aws:sourceVpce": self.s3_vpc_endpoint_id
+        #             },
+        #             "ArnNotEquals": {
+        #                "aws:PrincipalArn": self.sagemaker_execution_role_arn
+        #             }
+        #         }
+        #     )
+        # )
 

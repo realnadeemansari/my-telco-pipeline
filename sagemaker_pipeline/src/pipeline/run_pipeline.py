@@ -138,7 +138,8 @@ def create_training_step():
         instance_type="ml.m5.large",
         role=sagemaker_exec_role_arn,
         output_path=f"s3://{bucket}/{bucket_prefix}/model",
-        network_config=network_config,
+        subnets=[subnet_1, subnet_2],
+        security_group_ids=[process_train_sg],
         hyperparameters={
             "n_estimators": 200,
             "max_depth": 10,
