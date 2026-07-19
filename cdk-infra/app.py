@@ -64,6 +64,7 @@ sagemaker_exec_role_stack = SageMakerRoleStack(
     workspace_bucket=ssm_stack.workspace_bucket.string_value,
     project_prefix=ssm_stack.project_prefix.string_value
 )
+s3_stack.add_dependency(sagemaker_exec_role_stack)
 
 stepfunction_stack = StepFunctionStack(
     app,
