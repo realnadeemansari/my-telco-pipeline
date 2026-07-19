@@ -9,6 +9,13 @@ MODEL_PACKAGE_GROUP_NAME = ssm_client.get_parameter(Name="/telco-churn/sagemaker
 ENDPOINT_NAME = ssm_client.get_parameter(Name="/telco-churn/sagemaker/endpoint/name")["Parameter"]["Value"]
 ROLE_ARN = ssm_client.get_parameter(Name="/telco-churn/sagemaker/exec-role-arn")["Parameter"]["Value"]
 MODEL_PACKAGE_ARN = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-package-arn/latest")["Parameter"]["Value"]
+# INVOCATION_5XX_ALARM = ssm_client.get_parameter(
+#     Name="/telco-churn/cloudwatch/alarm/invocation-5xx"
+# )["Parameter"]["Value"]
+
+# LATENCY_ALARM = ssm_client.get_parameter(
+#     Name="/telco-churn/cloudwatch/alarm/model-latency"
+# )["Parameter"]["Value"]
 
 # network configuration
 SUBNET_1_ID = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-1-id")["Parameter"]["Value"]
@@ -36,6 +43,31 @@ describe = sm_client.describe_model_package(
 )
 container = describe["InferenceSpecification"]["Containers"][0]
 
+# deployment_config = {
+#     "BlueGreenUpdatePolicy": {
+#         "TrafficRoutingConfiguration": {
+#             "Type": "CANARY",
+#             "CanarySize": {
+#                 "Type": "CAPACITY_PERCENT",
+#                 "Value": 10
+#             },
+#             "WaitIntervalInSeconds": 300
+#         },
+#         "TerminationWaitInSeconds": 300,
+#         "MaximumExecutionTimeoutInSeconds": 1800
+#     },
+#     "AutoRollbackConfiguration": {
+#         "Alarms": [
+#             {
+#                 "AlarmName": INVOCATION_5XX_ALARM
+#             },
+#             {
+#                 "AlarmName": LATENCY_ALARM
+#             }
+#         ]
+#     }
+# }
+
 try:
     sm_client.create_model(
         ModelName=model_name,
@@ -62,7 +94,7 @@ try:
             {
                 "VariantName": "Primary",
                 "ModelName": model_name,
-                "InitialInstanceCount": 1,
+                "InitialInstanceCount": 2,
                 "InstanceType": "ml.m5.large"
             }
         ]
@@ -79,7 +111,8 @@ try:
     print("Updating endpoint...")
     sm_client.update_endpoint(
         EndpointName=ENDPOINT_NAME,
-        EndpointConfigName=endpoint_config
+        EndpointConfigName=endpoint_config,
+        # DeploymentConfig=deployment_config
     )
     response = sm_client.describe_endpoint(
         EndpointName=ENDPOINT_NAME
