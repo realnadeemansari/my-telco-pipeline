@@ -30,6 +30,11 @@ class S3BucketStack(Stack):
             self,
             "/telco-churn/sagemaker/exec-role-arn"
         )
+        self.step_function_role_arn = ssm.StringParameter.value_for_string_parameter(
+            self,
+            "/telco-churn/step-function/state-machine/role-arn"
+        )
+        self.cloudformation_execution_role_arn = f"cdk-hnb659fds-cfn-exec-role-{Aws.ACCOUNT_ID}-{Aws.REGION}"
 
         self.workspace_bucket = s3.Bucket(
             self, "WorkspaceBucket",
@@ -46,25 +51,45 @@ class S3BucketStack(Stack):
             removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True
         )
+        self.workspace_bucket.add_to_resource_policy(
+            iam.PolicyStatement(
+                sid="AllowTrustedRoles",
+                effect=iam.Effect.ALLOW,
+                principals=[
+                    iam.ArnPrincipal(self.sagemaker_execution_role_arn),
+                    iam.ArnPrincipal(self.step_function_role_arn),
+                    iam.ArnPrincipal(self.cloudformation_execution_role_arn)
+                ],
+                actions=["s3:*"],
+                resources=[
+                    self.workspace_bucket.bucket_arn,
+                    f"{self.workspace_bucket.bucket_arn}/*",
+                ],
+            )
+        )
 
-        # self.workspace_bucket.add_to_resource_policy(
-        #     iam.PolicyStatement(
-        #         sid="AllowOnlyThroughVpcEndpoint",
-        #         effect=iam.Effect.DENY,
-        #         actions=["s3:*"],
-        #         resources=[
-        #             f"{self.workspace_bucket.bucket_arn}",
-        #             f"{self.workspace_bucket.bucket_arn}/*"
-        #         ],
-        #         principals=[iam.AnyPrincipal()],
-        #         conditions={
-        #             "StringNotEquals": {
-        #                 "aws:sourceVpce": self.s3_vpc_endpoint_id
-        #             },
-        #             "ArnNotEquals": {
-        #                "aws:PrincipalArn": self.sagemaker_execution_role_arn
-        #             }
-        #         }
-        #     )
-        # )
+        self.workspace_bucket.add_to_resource_policy(
+            iam.PolicyStatement(
+                sid="AllowOnlyThroughVpcEndpoint",
+                effect=iam.Effect.DENY,
+                actions=["s3:*"],
+                resources=[
+                    f"{self.workspace_bucket.bucket_arn}",
+                    f"{self.workspace_bucket.bucket_arn}/*"
+                ],
+                principals=[iam.AnyPrincipal()],
+                conditions={
+                    "StringNotEquals": {
+                        "aws:sourceVpce": self.s3_vpc_endpoint_id
+                    },
+                    "ArnNotLike": {
+                        "aws:PrincipalArn": [
+                            self.sagemaker_execution_role_arn,
+                            self.step_function_role_arn,
+                            self.cloudformation_execution_role_arn,
+                        ]
+                    }
+                }
+            )
+        )
 

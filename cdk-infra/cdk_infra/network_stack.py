@@ -187,25 +187,6 @@ class NetworkStack(Stack):
                 }
             ]
         )
-        self.endpoint_security_group = ec2.CfnSecurityGroup(
-            self,
-            "EndpointSecurityGroup",
-            group_name=f"{project_prefix}-endpoint-sg",
-            group_description="Security group for SageMaker endpoint",
-            vpc_id=self.vpc.ref,
-            security_group_egress=[
-                ec2.CfnSecurityGroup.EgressProperty(
-                    ip_protocol="-1",
-                    cidr_ip="0.0.0.0/0"
-                )
-            ],
-            tags=[
-                {
-                    "key": "Name",
-                    "value": f"{project_prefix}-endpoint-sg"
-                }
-            ]
-        )
         self.process_train_security_group = ec2.CfnSecurityGroup(
             self,
             "ProcessTrainSecurityGroup",
@@ -263,24 +244,6 @@ class NetworkStack(Stack):
                 }
             ]
         )
-        self.endpoint_security_group_lambda_ingress = ec2.CfnSecurityGroupIngress(
-            self,
-            "EndpointSecurityGroupLambdaIngress",
-            group_id=self.endpoint_security_group.attr_group_id,
-            source_security_group_id=self.lambda_security_group.attr_group_id,
-            ip_protocol="tcp",
-            from_port=443,
-            to_port=443
-        )
-        self.endpoint_security_group_process_train_ingress = ec2.CfnSecurityGroupIngress(
-            self,
-            "EndpointSecurityGroupProcessTrainIngress",
-            group_id=self.endpoint_security_group.attr_group_id,
-            source_security_group_id=self.process_train_security_group.attr_group_id,
-            ip_protocol="tcp",
-            from_port=443,
-            to_port=443
-        )
         self.process_train_security_group_ingress = ec2.CfnSecurityGroupIngress(
             self,
             "ProcessTrainSecurityGroupIngress",
@@ -290,20 +253,11 @@ class NetworkStack(Stack):
             from_port=443,
             to_port=443
         )
-        self.endpoint_security_group_codebuild_ingress = ec2.CfnSecurityGroupIngress(
-            self,
-            "EndpointSecurityGroupCodeBuildIngress",
-            group_id=self.endpoint_security_group.attr_group_id,
-            source_security_group_id=self.codebuild_security_group.attr_group_id,
-            ip_protocol="tcp",
-            from_port=443,
-            to_port=443
-        )
         self.vpc_endpoint_security_group_endpoint_ingress = ec2.CfnSecurityGroupIngress(
             self,
             "VPCEndpointSecurityGroupEndpointIngress",
             group_id=self.vpc_endpoint_security_group.attr_group_id,
-            source_security_group_id=self.endpoint_security_group.attr_group_id,
+            source_security_group_id=self.lambda_security_group.attr_group_id,
             ip_protocol="tcp",
             from_port=443,
             to_port=443
@@ -578,13 +532,6 @@ class NetworkStack(Stack):
         )
         CfnOutput(
             self,
-            "EndpointSecurityGroupIdOutput",
-            value=self.endpoint_security_group.ref,
-            description="The ID of the SageMaker endpoint security group"
-        )
-
-        CfnOutput(
-            self,
             "VPCEndpointSecurityGroupIdOutput",
             value=self.vpc_endpoint_security_group.ref,
             description="The ID of the VPC endpoint security group"
@@ -717,13 +664,6 @@ class NetworkStack(Stack):
             parameter_name="/telco-churn/network/lambda-security-group-id",
             string_value=self.lambda_security_group.ref
         )
-        ssm.StringParameter(
-            self,
-            "EndpointSecurityGroupIdParameter",
-            parameter_name="/telco-churn/network/endpoint-security-group-id",
-            string_value=self.endpoint_security_group.ref
-        )
-
         ssm.StringParameter(
             self,
             "ProcessTrainSecurityGroupIdParameter",
