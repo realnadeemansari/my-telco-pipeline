@@ -27,6 +27,8 @@ s3_stack = S3BucketStack(
     stack_name=f"{project_prefix}-s3",
     workspace_name=ssm_stack.workspace_bucket.string_value, 
     pipeline_name=ssm_stack.pipeline_bucket.string_value,
+    step_function_role_name=ssm_stack.sfn_state_machine_role_name.string_value,
+    sagemaker_exec_role_name=ssm_stack.sagemaker_exec_role_name.string_value
 )
 
 codebuild_stack = CodeBuildStack(
@@ -77,6 +79,7 @@ stepfunction_stack = StepFunctionStack(
     sagemaker_exec_role_arn=sagemaker_exec_role_stack.sagemaker_exec_role_arn.string_value
 )
 stepfunction_stack.add_dependency(sagemaker_exec_role_stack)
+s3_stack.add_dependency(stepfunction_stack)
 
 model_package_group_stack = ModelPackageGroupStack(
     app,
