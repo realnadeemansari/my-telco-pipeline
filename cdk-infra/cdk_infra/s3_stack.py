@@ -18,6 +18,8 @@ class S3BucketStack(Stack):
             construct_id: str, 
             workspace_name: str, 
             pipeline_name: str,
+            step_function_role_name: str,
+            sagemaker_exec_role_name: str,
             **kwargs
         ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -87,6 +89,9 @@ class S3BucketStack(Stack):
                             self.sagemaker_execution_role_arn,
                             self.step_function_role_arn,
                             self.cloudformation_execution_role_arn,
+                            f"arn:aws:sts::{Aws.ACCOUNT_ID}:assumed-role/cdk-hnb659fds-cfn-exec-role-{Aws.ACCOUNT_ID}-{Aws.REGION}/*",
+                            f"arn:aws:sts::{Aws.ACCOUNT_ID}:assumed-role/{step_function_role_name}/*",
+                            f"arn:aws:sts::{Aws.ACCOUNT_ID}:assumed-role/{sagemaker_exec_role_name}/*"
                         ]
                     }
                 }
