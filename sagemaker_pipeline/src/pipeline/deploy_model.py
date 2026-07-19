@@ -13,7 +13,7 @@ MODEL_PACKAGE_ARN = ssm_client.get_parameter(Name="/telco-churn/sagemaker/model-
 # network configuration
 SUBNET_1_ID = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-1-id")["Parameter"]["Value"]
 SUBNET_2_ID = ssm_client.get_parameter(Name="/telco-churn/network/private-subnet-2-id")["Parameter"]["Value"]
-ENDPOINT_SECURITY_GROUP_ID = ssm_client.get_parameter(Name="/telco-churn/network/endpoint-security-group-id")["Parameter"]["Value"]
+ENDPOINT_SECURITY_GROUP_ID = ssm_client.get_parameter(Name="/telco-churn/network/vpc-endpoint-security-group-id")["Parameter"]["Value"]
 
 model_version_suffix = datetime.utcnow().strftime("%Y%m%d%H%M%S")
 model_name = f"{ENDPOINT_NAME}-model-{model_version_suffix}"
