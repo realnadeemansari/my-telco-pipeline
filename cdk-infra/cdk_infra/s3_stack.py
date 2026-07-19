@@ -2,6 +2,7 @@ from aws_cdk import (
     # Duration,
     RemovalPolicy,
     Stack,
+    Aws,
     aws_s3 as s3,
     aws_iam as iam,
     aws_ssm as ssm
@@ -24,6 +25,10 @@ class S3BucketStack(Stack):
         self.s3_vpc_endpoint_id = ssm.StringParameter.value_for_string_parameter(
             self,
             "/telco-churn/network/s3-gateway-endpoint-id"
+        )
+        self.sagemaker_execution_role_arn = ssm.StringParameter.value_for_string_parameter(
+            self,
+            "/telco-churn/sagemaker/exec-role-arn"
         )
 
         self.workspace_bucket = s3.Bucket(
@@ -55,6 +60,9 @@ class S3BucketStack(Stack):
                 conditions={
                     "StringNotEquals": {
                         "aws:sourceVpce": self.s3_vpc_endpoint_id
+                    },
+                    "ArnNotEquals": {
+                       "aws:PrincipalArn": self.sagemaker_execution_role_arn
                     }
                 }
             )
