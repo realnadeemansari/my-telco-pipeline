@@ -396,37 +396,37 @@ class NetworkStack(Stack):
         # )
 
         # Create NAT
-        # self.nat_eip = ec2.CfnEIP(
-        #     self,
-        #     "NatElasticIP",
-        #     domain="vpc",
-        #     tags=[
-        #         {
-        #             "key": "Name",
-        #             "value": f"{project_prefix}-nat-eip"
-        #         }
-        #     ]
-        # )
-        # self.nat_gateway = ec2.CfnNatGateway(
-        #     self,
-        #     "NatGateway",
-        #     allocation_id=self.nat_eip.attr_allocation_id,
-        #     subnet_id=self.public_subnet_1.ref,
-        #     tags=[
-        #         {
-        #             "key": "Name",
-        #             "value": f"{project_prefix}-nat-gateway"
-        #         }
-        #     ]
-        # )
-        # self.nat_gateway.add_dependency(self.vpc_gateway_attachment)
-        # ec2.CfnRoute(
-        #     self,
-        #     "PrivateDefaultRoute",
-        #     route_table_id=self.private_route_table.ref,
-        #     destination_cidr_block="0.0.0.0/0",
-        #     nat_gateway_id=self.nat_gateway.ref
-        # )
+        self.nat_eip = ec2.CfnEIP(
+            self,
+            "NatElasticIP",
+            domain="vpc",
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-nat-eip"
+                }
+            ]
+        )
+        self.nat_gateway = ec2.CfnNatGateway(
+            self,
+            "NatGateway",
+            allocation_id=self.nat_eip.attr_allocation_id,
+            subnet_id=self.public_subnet_1.ref,
+            tags=[
+                {
+                    "key": "Name",
+                    "value": f"{project_prefix}-nat-gateway"
+                }
+            ]
+        )
+        self.nat_gateway.add_dependency(self.vpc_gateway_attachment)
+        ec2.CfnRoute(
+            self,
+            "PrivateDefaultRoute",
+            route_table_id=self.private_route_table.ref,
+            destination_cidr_block="0.0.0.0/0",
+            nat_gateway_id=self.nat_gateway.ref
+        )
 
         # Create VPC endpoints for S3, ECR, and CloudWatch Logs
         self.s3_gateway_endpoint = ec2.CfnVPCEndpoint(

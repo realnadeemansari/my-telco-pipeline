@@ -1,7 +1,7 @@
 import os
 import json
 import boto3
-# import urllib.request
+import urllib.request
 
 runtime = boto3.client("sagemaker-runtime")
 
@@ -10,9 +10,9 @@ ENDPOINT_NAME = os.environ["ENDPOINT_NAME"]
 
 def lambda_handler(event, context):
     print("Inside the Lambda function")
-    # with urllib.request.urlopen("https://api.ipify.org") as response:
-    #     ip = response.read().decode("utf-8")
-    # print(f"Lambda function invoked from IP address: {ip}")
+    with urllib.request.urlopen("https://api.ipify.org") as response:
+        ip = response.read().decode("utf-8")
+    print(f"Lambda function invoked from IP address: {ip}")
 
     payload = event["body"]
 
@@ -26,7 +26,7 @@ def lambda_handler(event, context):
     )
     res = {
         "prediction": prediction,
-        # "nat_response": f"Lambda function invoked from IP address: {ip}"
+        "nat_response": f"Lambda function invoked from IP address: {ip}"
     }
 
     return {
